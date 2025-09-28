@@ -1,0 +1,1 @@
+export { getMatchLineupData } from "./get-match-lineup-data";

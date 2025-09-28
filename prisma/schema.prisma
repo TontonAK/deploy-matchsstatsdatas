@@ -1,0 +1,500 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 String             @id @default(uuid())
+  slug               String
+  email              String?             @unique
+  emailVerified      Boolean            @default(true)
+  lastname           String
+  firstname          String
+  clubId             Int
+  club               Club               @relation(fields: [clubId], references: [id])
+  teams              PlayerTeams[]
+  positions          PlayersPositions[]
+  stats              Stat[]
+  matchsLineup       MatchLineup[]
+  MainMatchsEvents   MatchEvent[]       @relation("MainPlayer")
+  SecondMatchsEvents MatchEvent[]       @relation("SecondPlayer")
+  matchsBestPlayer   MatchBestPlayer[]
+  matchsWorstPlayer  MatchWorstPlayer[]
+
+  sessions  Session[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  image     String?
+  accounts  Account[]
+  role      String?
+  job       Role      @default(Player)
+
+  name       String?
+  banned     Boolean?
+  banReason  String?
+  banExpires DateTime?
+
+  @@map("user")
+}
+
+model Club {
+  id             Int     @id @default(autoincrement())
+  slug           String  @unique
+  name           String
+  primaryColor   String
+  secondaryColor String
+  logo           String?
+  users          User[]
+  teams          Team[]
+  stadiums       Stadium[]
+  alias          ClubAlias?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ClubAlias {
+  id      Int @id @default(autoincrement())
+  clubId  Int @unique
+  club    Club   @relation(fields: [clubId], references: [id])
+  alias   String
+}
+
+model Stadium {
+  id      Int @id @default(autoincrement())
+
+  clubId  Int
+  club    Club   @relation(fields: [clubId], references: [id])
+
+  name    String
+  matchs  Match[]
+}
+
+model Team {
+  id     Int    @id @default(autoincrement())
+  clubId Int
+  club   Club   @relation(fields: [clubId], references: [id])
+  name   String
+
+  league        LeagueTeams?
+  players      PlayerTeams[]
+  stats        Stat[]
+  matchsEvent  MatchEvent[]
+  matchsLineup MatchLineup[]
+
+  // Relations avec Match
+  homeMatches Match[] @relation("HomeTeam")
+  awayMatches Match[] @relation("AwayTeam")
+}
+
+model PlayerTeams {
+  player   User   @relation(fields: [playerId], references: [id])
+  playerId String
+  team     Team   @relation(fields: [teamId], references: [id])
+  teamId   Int
+
+  @@id([playerId, teamId])
+}
+
+model LeagueTeams {
+  id                Int     @id @default(autoincrement())
+
+  team              Team    @relation(fields: [teamId], references: [id])
+  teamId            Int     @unique
+  league            League  @relation(fields: [leagueId], references: [id])
+  leagueId          Int
+  leaguePoolId      Int?
+  leaguePool        LeaguePool?   @relation(fields: [leaguePoolId], references: [id])
+}
+
+model Match {
+  id              Int               @id @default(autoincrement())
+  ulid            String            @default(ulid()) @unique
+  schedule        DateTime
+  status          MatchStatus       @default(Planned)
+  endingStatus    MatchEndingStatus @default(Waiting_End)
+
+  homeTeamId      Int
+  homeTeam        Team              @relation("HomeTeam", fields: [homeTeamId], references: [id])
+  scoreHomeTeam   Int?
+  awayTeamId      Int
+  awayTeam        Team              @relation("AwayTeam", fields: [awayTeamId], references: [id])
+  scoreAwayTeam   Int?
+
+  nbPlayerLineup  Int               @default(22)
+  periodTypeId    Int
+  periodType      MatchPeriodType   @relation(fields: [periodTypeId], references: [id])
+  result          MatchResult?
+
+  stadiumId           Int
+  stadium             Stadium @relation(fields: [stadiumId], references: [id])
+  stats               Stat[]
+  matchsLineup        MatchLineup[]
+  statsType           MatchStatsType[]
+  events              MatchEvent[]
+  seasonLeagueMatch   SeasonLeagueMatch?
+  halfTimeScore       MatchScoreHalfTime?
+  bestPlayer          MatchBestPlayer?
+  worstPlayer         MatchWorstPlayer?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model MatchEvent {
+  id Int @id @default(autoincrement())
+
+  eventType      MatchEventType @relation(fields: [eventTypeId], references: [id])
+  eventTypeId    Int
+  match          Match          @relation(fields: [matchId], references: [id])
+  matchId        Int          
+  team           Team           @relation(fields: [teamId], references: [id])
+  teamId         Int
+  mainPlayer     User?          @relation("MainPlayer", fields: [mainPlayerId], references: [id])
+  mainPlayerId   String?
+  secondPlayer   User?          @relation("SecondPlayer", fields: [secondPlayerId], references: [id])
+  secondPlayerId String?
+
+  minute      Int
+  description String?
+}
+
+model MatchLineup {
+  id Int @id @default(autoincrement())
+
+  matchId  Int
+  match    Match  @relation(fields: [matchId], references: [id])
+  teamId   Int
+  team     Team   @relation(fields: [teamId], references: [id])
+  playerId String
+  player   User   @relation(fields: [playerId], references: [id])
+
+  number Int
+}
+
+model MatchScoreHalfTime {
+  id          Int     @id @default(autoincrement())
+  matchId     Int     @unique
+  match       Match   @relation(fields: [matchId], references: [id])
+  homeScore   Int
+  awayScore   Int
+}
+
+model MatchBestPlayer {
+  id          Int     @id @default(autoincrement())
+  matchId     Int     @unique
+  match       Match   @relation(fields: [matchId], references: [id])
+  playerId    String
+  player      User    @relation(fields: [playerId], references: [id])
+}
+
+model MatchWorstPlayer {
+  id          Int     @id @default(autoincrement())
+  matchId     Int     @unique
+  match       Match   @relation(fields: [matchId], references: [id])
+  playerId    String
+  player      User    @relation(fields: [playerId], references: [id])
+  reason      String?
+}
+
+model League {
+  id   Int     @id @default(autoincrement())
+  name String
+  slug String
+
+  pools   LeaguePool[]
+  seasonLeague  SeasonLeague[]
+  leagueTeams   LeagueTeams[]
+}
+
+model LeaguePool {
+  id            Int @id @default(autoincrement())
+  pool          String
+
+  leagueId      Int?
+  league        League?   @relation(fields: [leagueId], references: [id])
+
+  seasonLeague  SeasonLeague[]
+  leagueTeams   LeagueTeams[]
+}
+
+model Stat {
+  id Int @id @default(autoincrement())
+
+  matchId    Int
+  match      Match    @relation(fields: [matchId], references: [id])
+  teamId     Int
+  team       Team     @relation(fields: [teamId], references: [id])
+  playerId   String?
+  player     User?    @relation(fields: [playerId], references: [id])
+  statTypeId Int
+  statType   StatType @relation(fields: [statTypeId], references: [id])
+
+  value Int
+
+  kickStatGround    KickStatGround[]
+  lineoutStatGround LineoutStatGround[]
+}
+
+model StatType {
+  id        Int           @id @default(autoincrement())
+  name      String
+  valueType StatValueType
+  gamePhase StatTypeGamePhase?
+  group     StatTypeGroup @default(All)
+
+  stats       Stat[]
+  matchsStats MatchStatsType[]
+}
+
+model KickStatGround {
+  id              Int   @id @default(autoincrement())
+  statId          Int
+  stat            Stat  @relation(fields: [statId], references: [id])
+  startAreaKick   GroundArea
+  endAreaKick     GroundArea?
+  deadBall        Boolean?
+  success         Boolean?
+  comment         String?
+}
+
+model LineoutStatGround {
+  id              Int   @id @default(autoincrement())
+  statId          Int
+  stat            Stat  @relation(fields: [statId], references: [id])
+  area            GroundArea
+  nbPlayer        Int
+  catchBlockArea  CatchBlockAreaLineout
+  success         Boolean?
+  failReason      String?
+}
+
+model MatchStatsType {
+  matchId    Int
+  match      Match    @relation(fields: [matchId], references: [id])
+  statTypeId Int
+  statType   StatType @relation(fields: [statTypeId], references: [id])
+
+  @@id([matchId, statTypeId])
+}
+
+model Position {
+  id        Int           @id @default(autoincrement())
+  name      String
+  shortName String
+  group     PositionGroup
+  type      PositionType?
+
+  players PlayersPositions[]
+}
+
+model PlayersPositions {
+  player         User     @relation(fields: [playerId], references: [id])
+  playerId       String
+  position       Position @relation(fields: [positionId], references: [id])
+  positionId     Int
+  isMainPosition Boolean  @default(false)
+
+  @@id([playerId, positionId])
+}
+
+model MatchType {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  seasonLeague  SeasonLeague[]
+}
+
+model MatchPeriodType {
+  id                      Int @id @default(autoincrement())
+  name                    String
+  numberPeriod            Int
+  durationPeriod          Int
+  extratimeNumberPeriod   Int?
+  extratimeDurationPeriod Int?
+
+  matchs                  Match[]
+}
+
+model MatchEventType {
+  id   Int    @id @default(autoincrement())
+  name String
+  group MatchEventGroup?
+
+  matchsEvents MatchEvent[]
+}
+
+model Season {
+  id    Int @id @default(autoincrement())
+  name  String
+
+  seasonLeague  SeasonLeague[]
+}
+
+model SeasonLeague {
+  id                Int       @id @default(autoincrement())
+
+  seasonId          Int
+  season            Season    @relation(fields: [seasonId], references: [id])
+  leagueId          Int?
+  league            League?   @relation(fields: [leagueId], references: [id])
+  leaguePoolId      Int?
+  leaguePool        LeaguePool?   @relation(fields: [leaguePoolId], references: [id])
+  typeMatchId       Int
+  typeMatch         MatchType @relation(fields: [typeMatchId], references: [id])
+
+  gameDay           Int?
+
+  leagueMatch       SeasonLeagueMatch[]
+}
+
+model SeasonLeagueMatch {
+  seasonLeagueId  Int
+  seasonLeague    SeasonLeague  @relation(fields: [seasonLeagueId], references: [id])
+  matchId         Int           @unique
+  match           Match         @relation(fields: [matchId], references: [id])
+
+  @@id([seasonLeagueId, matchId])
+}
+
+model Session {
+  id        String   @id
+  token     String    @unique
+  expiresAt DateTime
+
+  // Relation
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+
+  impersonatedBy String?
+
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime
+  updatedAt             DateTime
+
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+
+  @@map("verification")
+}
+
+enum Role {
+  Player
+  Coach
+  Admin
+}
+
+enum MatchResult {
+  Home_Win
+  Draw
+  Away_Win
+}
+
+enum MatchStatus {
+  Planned
+  Live
+  Finish
+}
+
+enum StatValueType {
+  Number
+  Percentage
+}
+
+enum MatchEndingStatus {
+  Waiting_End
+  Stat_Not_Sending
+  Stat_Send
+}
+
+enum PositionGroup {
+  First_Line
+  Second_Line
+  Third_Line
+  Scrum_Fly_Half
+  Winger
+  Center
+  Full_Back
+}
+
+enum PositionType {
+  Forwards
+  Backs
+}
+
+enum MatchEventGroup {
+  Tries
+  Shoots
+  Fouls
+  Other
+}
+
+enum StatTypeGroup {
+  Player
+  Team
+  All
+}
+
+enum StatTypeGamePhase {
+  Score
+  Attack
+  Defense
+  Static_Phase
+  Foot
+  Contact_Area
+  Discipline
+}
+
+enum GroundArea {
+  Own_22_In_Goal
+  Own_40
+  Own_50
+  Opp_50
+  Opp_40
+  Opp_22_In_Goal
+}
+
+enum CatchBlockAreaLineout {
+  Block_Area_1
+  Block_Area_2
+  Block_Area_3
+}
