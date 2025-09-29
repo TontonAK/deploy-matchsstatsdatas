@@ -1,7 +1,8 @@
 "use server";
 
 import { updateMatchStatus } from "@/database/matchs/update-match";
-import { actionUser, SafeError } from "@/lib/safe-action-client";
+import { actionUser } from "@/lib/safe-action-client";
+import { SafeActionError } from "@/lib/errors";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
@@ -14,11 +15,11 @@ export const finishMatchAction = actionUser
   .action(async ({ parsedInput: input, ctx: { user } }) => {
     // Vérifier les permissions de l'utilisateur
     if (user.role !== "admin") {
-      throw new SafeError("Vous devez avoir le rôle admin pour terminer le match");
+      throw new SafeActionError("Vous devez avoir le rôle admin pour terminer le match");
     }
 
     if (user.job !== "Coach" && user.job !== "Admin") {
-      throw new SafeError(
+      throw new SafeActionError(
         "Vous n'avez pas les permissions nécessaires pour terminer le match"
       );
     }
@@ -35,12 +36,12 @@ export const finishMatchAction = actionUser
     });
 
     if (!match) {
-      throw new SafeError("Match non trouvé");
+      throw new SafeActionError("Match non trouvé");
     }
 
     // Vérifier que le match est en statut "Live"
     if (match.status !== "Live") {
-      throw new SafeError("Seuls les matchs en cours peuvent être terminés");
+      throw new SafeActionError("Seuls les matchs en cours peuvent être terminés");
     }
 
     // Vérifier que l'utilisateur appartient à une des équipes du match
@@ -55,7 +56,7 @@ export const finishMatchAction = actionUser
     );
 
     if (!isUserInMatchTeam) {
-      throw new SafeError(
+      throw new SafeActionError(
         "Vous n'avez pas l'autorisation de terminer ce match"
       );
     }
@@ -68,7 +69,7 @@ export const finishMatchAction = actionUser
     });
 
     if (!result.success) {
-      throw new SafeError(result.error || "Erreur lors de la fin du match");
+      throw new SafeActionError(result.error || "Erreur lors de la fin du match");
     }
 
     return {

@@ -1,6 +1,7 @@
 "use server";
 
-import { actionUser, SafeError } from "@/lib/safe-action-client";
+import { actionUser } from "@/lib/safe-action-client";
+import { SafeActionError } from "@/lib/errors";
 import { createOrUpdateHalftimeScore } from "@/database/matchs/create-or-update-score-halftime";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
@@ -16,7 +17,7 @@ export const scoreHalftimeAction = actionUser
   .action(async ({ parsedInput: input, ctx: { user } }) => {
     // Vérifier les permissions : Admin ou Coach
     if (user.job !== "Admin" && user.job !== "Coach") {
-      throw new SafeError("Seuls les administrateurs et entraîneurs peuvent modifier le score à la mi-temps");
+      throw new SafeActionError("Seuls les administrateurs et entraîneurs peuvent modifier le score à la mi-temps");
     }
 
     // Récupérer les détails du match
@@ -63,7 +64,7 @@ export const scoreHalftimeAction = actionUser
     });
 
     if (!match) {
-      throw new SafeError("Match non trouvé");
+      throw new SafeActionError("Match non trouvé");
     }
 
     // Vérifier que l'utilisateur appartient à une des équipes du match ou est admin global
@@ -87,7 +88,7 @@ export const scoreHalftimeAction = actionUser
       const hasAccess = userClubIds.some(clubId => matchClubIds.includes(clubId));
 
       if (!hasAccess) {
-        throw new SafeError("Vous n'avez pas l'autorisation de modifier le score à la mi-temps pour ce match");
+        throw new SafeActionError("Vous n'avez pas l'autorisation de modifier le score à la mi-temps pour ce match");
       }
     }
 
@@ -100,7 +101,7 @@ export const scoreHalftimeAction = actionUser
       });
 
       if (!result.success) {
-        throw new SafeError(result.error || "Erreur lors de l'enregistrement du score à la mi-temps");
+        throw new SafeActionError(result.error || "Erreur lors de l'enregistrement du score à la mi-temps");
       }
 
       return {
@@ -125,9 +126,9 @@ export const scoreHalftimeAction = actionUser
       };
     } catch (error) {
       console.error("Erreur lors de l'enregistrement du score à la mi-temps:", error);
-      if (error instanceof SafeError) {
+      if (error instanceof SafeActionError) {
         throw error;
       }
-      throw new SafeError("Erreur lors de l'enregistrement du score à la mi-temps");
+      throw new SafeActionError("Erreur lors de l'enregistrement du score à la mi-temps");
     }
   });

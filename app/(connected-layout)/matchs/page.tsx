@@ -1,5 +1,4 @@
 import { getFilteredMatchs } from "@/database/matchs/get-matchs";
-import { getRequiredUser } from "@/lib/auth-session";
 import { prisma } from "@/lib/prisma";
 import { MatchFilters } from "./match-filters";
 import { MatchPagination } from "./match-pagination";
@@ -11,7 +10,6 @@ interface PageProps {
 }
 
 export default async function MatchsPage({ searchParams }: PageProps) {
-  const user = await getRequiredUser();
   const { seasonId, clubId, teamId, page } = searchParamsCache.parse(
     await searchParams
   );
@@ -58,9 +56,9 @@ export default async function MatchsPage({ searchParams }: PageProps) {
   // Fetch filtered matches
   const matchsResult = await getFilteredMatchs({
     page,
-    seasonId,
-    clubId,
-    teamId,
+    seasonId: seasonId ?? undefined,
+    clubId: clubId ?? undefined,
+    teamId: teamId ?? undefined,
   });
 
   if (!matchsResult.success || !matchsResult.data) {

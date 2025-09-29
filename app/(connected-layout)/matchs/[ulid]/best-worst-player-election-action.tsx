@@ -160,7 +160,10 @@ export function BestWorstPlayerElection({
         // Rafraîchir la page pour mettre à jour l'affichage
         window.location.reload();
       } else {
-        toast.error(result?.serverError || "Erreur lors de l'enregistrement");
+        const errorMessage = typeof result?.serverError === 'string'
+          ? result.serverError
+          : "Erreur lors de l'enregistrement";
+        toast.error(errorMessage);
       }
     } catch (error) {
       console.error("Erreur:", error);

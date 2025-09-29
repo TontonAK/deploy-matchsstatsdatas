@@ -86,7 +86,7 @@ export function KickStatCreateClient({
 
   // Validation selon l'étape courante
   const validateCurrentStep = async (): Promise<boolean> => {
-    let fieldsToValidate: string[] = [];
+    let fieldsToValidate: (keyof KickStatCreateFormSchema)[] = [];
 
     switch (currentStep) {
       case 1:
@@ -139,7 +139,10 @@ export function KickStatCreateClient({
       const result = await createKickStatAction(data);
 
       if (result?.serverError) {
-        toast.error(result.serverError);
+        const errorMessage = typeof result.serverError === 'string'
+          ? result.serverError
+          : "Erreur lors de la création de la statistique";
+        toast.error(errorMessage);
       } else if (result?.data) {
         toast.success("Statistique de coup de pied créée avec succès !");
         router.push(`/matchs/${matchUlid}`);

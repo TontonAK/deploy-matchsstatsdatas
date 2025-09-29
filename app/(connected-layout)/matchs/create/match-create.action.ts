@@ -1,7 +1,8 @@
 "use server";
 
 import { createMatch } from "@/database/matchs/create-match";
-import { actionUser, SafeError } from "@/lib/safe-action-client";
+import { actionUser } from "@/lib/safe-action-client";
+import { SafeActionError } from "@/lib/errors";
 import { MatchCreateSchema } from "@/schemas/match-create.schema";
 
 export const createMatchSafeAction = actionUser
@@ -9,11 +10,11 @@ export const createMatchSafeAction = actionUser
   .action(async ({ parsedInput: input, ctx: { user } }) => {
     // Vérifier que l'utilisateur a les permissions nécessaires
     if (user.role !== "admin") {
-      throw new SafeError("Vous devez avoir le rôle admin pour créer un match");
+      throw new SafeActionError("Vous devez avoir le rôle admin pour créer un match");
     }
 
     /*if (user.job !== "Coach" && user.job !== "Admin") {
-      throw new SafeError(
+      throw new SafeActionError(
         "Vous n'avez pas les permissions nécessaires pour créer un match"
       );
     }*/
@@ -34,7 +35,7 @@ export const createMatchSafeAction = actionUser
     });
 
     if (!result.success) {
-      throw new SafeError(
+      throw new SafeActionError(
         result.error ?? "Une erreur est survenue lors de la création du match"
       );
     }

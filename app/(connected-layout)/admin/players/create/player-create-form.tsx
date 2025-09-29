@@ -93,7 +93,7 @@ export const PlayerCreateForm = ({
 
   // Mettre à jour les équipes disponibles quand un club est sélectionné
   useEffect(() => {
-    if (selectedClubId && selectedClubId > 0) {
+    if (selectedClubId && selectedClubId > 0 && clubs) {
       const selectedClub = clubs.find((club) => club.id === selectedClubId);
       if (selectedClub) {
         setAvailableTeams(selectedClub.teams);
@@ -108,7 +108,7 @@ export const PlayerCreateForm = ({
 
   // Mettre à jour les positions secondaires disponibles
   useEffect(() => {
-    if (selectedMainPositionId) {
+    if (selectedMainPositionId && positions) {
       setAvailableSecondaryPositions(
         positions.filter((pos) => pos.id !== selectedMainPositionId)
       );
@@ -120,14 +120,17 @@ export const PlayerCreateForm = ({
       if (filteredSecondaryIds.length !== currentSecondaryIds.length) {
         form.setValue("secondaryPositionIds", filteredSecondaryIds);
       }
-    } else {
+    } else if (positions) {
       setAvailableSecondaryPositions(positions);
     }
   }, [selectedMainPositionId, positions, form]);
 
   const { execute } = useAction(createPlayerSafeAction, {
     onError: (error) => {
-      toast.error(error.error.serverError ?? "Erreur lors de la création");
+      const errorMessage = typeof error.error.serverError === 'string'
+        ? error.error.serverError
+        : "Erreur lors de la création";
+      toast.error(errorMessage);
       setIsLoading(false);
     },
     onSuccess: () => {
@@ -313,7 +316,7 @@ export const PlayerCreateForm = ({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {positions.map((position) => (
+                          {(positions || []).map((position) => (
                             <SelectItem
                               key={position.id}
                               value={position.id.toString()}
@@ -397,7 +400,7 @@ export const PlayerCreateForm = ({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {clubs.map((club) => (
+                      {(clubs || []).map((club) => (
                         <SelectItem key={club.id} value={club.id.toString()}>
                           <div className="flex items-center space-x-2">
                             {club.logo && (

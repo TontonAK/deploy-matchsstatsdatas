@@ -14,7 +14,7 @@ import { Separator } from "@/components/ui/separator";
 interface MatchEventTypes {
   id: number;
   name: string;
-  group: MatchEventGroup;
+  group: MatchEventGroup | null;
 }
 
 interface MatchLineup {

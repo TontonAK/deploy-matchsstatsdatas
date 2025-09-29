@@ -50,7 +50,10 @@ export default [
       "node_modules",
       "*.esm.js",
       "*.config.mjs",
+      "*.config.ts",
       "src/generated/prisma",
+      "prisma/seed.ts",
+      "src/components/ui",
     ],
   },
 ];

@@ -81,7 +81,7 @@ export function LineoutStatCreateClient({
 
   // Validation selon l'étape courante
   const validateCurrentStep = async (): Promise<boolean> => {
-    let fieldsToValidate: string[] = [];
+    let fieldsToValidate: (keyof LineoutStatCreateFormSchema)[] = [];
 
     switch (currentStep) {
       case 1:
@@ -137,7 +137,10 @@ export function LineoutStatCreateClient({
       const result = await createLineoutStatAction(data);
 
       if (result?.serverError) {
-        toast.error(result.serverError);
+        const errorMessage = typeof result.serverError === 'string'
+          ? result.serverError
+          : "Erreur lors de la création de la statistique";
+        toast.error(errorMessage);
       } else if (result?.data) {
         toast.success("Statistique de touche créée avec succès !");
         router.push(`/matchs/${matchUlid}`);

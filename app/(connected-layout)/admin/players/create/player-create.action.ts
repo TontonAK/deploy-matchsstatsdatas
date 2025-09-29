@@ -2,7 +2,8 @@
 
 import { createPlayer } from "@/database/players/create-player";
 import { uploadFileToS3 } from "@/features/image-upload/awss3.utils";
-import { actionUser, SafeError } from "@/lib/safe-action-client";
+import { actionUser } from "@/lib/safe-action-client";
+import { SafeActionError } from "@/lib/errors";
 import { PlayerCreateSchema } from "@/schemas/player-create.schema";
 
 export const createPlayerSafeAction = actionUser
@@ -10,11 +11,11 @@ export const createPlayerSafeAction = actionUser
   .action(async ({ parsedInput: input, ctx: { user } }) => {
     // Vérifier que l'utilisateur a les droits d'admin et le bon job
     if (user.role !== "admin") {
-      throw new SafeError("Vous n'avez pas les droits pour créer un joueur");
+      throw new SafeActionError("Vous n'avez pas les droits pour créer un joueur");
     }
 
     /* if (user.job !== "Coach" && user.job !== "Admin") {
-      throw new SafeError(
+      throw new SafeActionError(
         "Seuls les entraîneurs et administrateurs peuvent créer des joueurs"
       );
     } */
@@ -25,7 +26,7 @@ export const createPlayerSafeAction = actionUser
     if (input.image && input.image instanceof File) {
       // Vérifier la taille du fichier (max 5MB)
       if (input.image.size > 5 * 1024 * 1024) {
-        throw new SafeError("La taille du fichier doit être inférieure à 5MB");
+        throw new SafeActionError("La taille du fichier doit être inférieure à 5MB");
       }
 
       imageUrl = await uploadFileToS3({
@@ -35,7 +36,7 @@ export const createPlayerSafeAction = actionUser
       });
 
       if (!imageUrl) {
-        throw new SafeError("Échec de l'upload de l'image de profil");
+        throw new SafeActionError("Échec de l'upload de l'image de profil");
       }
     }
 
@@ -54,7 +55,7 @@ export const createPlayerSafeAction = actionUser
     });
 
     if (!result.success) {
-      throw new SafeError(
+      throw new SafeActionError(
         result.error ?? "Une erreur est survenue durant la création du joueur"
       );
     }

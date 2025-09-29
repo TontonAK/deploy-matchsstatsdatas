@@ -1,6 +1,7 @@
 "use server";
 
-import { actionUser, SafeError } from "@/lib/safe-action-client";
+import { actionUser } from "@/lib/safe-action-client";
+import { SafeActionError } from "@/lib/errors";
 import { KickStatCreateSchema } from "@/schemas/kick-stat-create.schema";
 import { createOrUpdatePlayerStats } from "@/database/statistics/create-or-update-player-stats";
 import { createKickStat } from "@/database/statistics/create-or-update-kick-stat";
@@ -17,7 +18,7 @@ export const createKickStatAction = actionUser
       const matchData = await getMatchLineupData(matchUlid);
       
       if (!matchData.success || !matchData.match) {
-        throw new SafeError("Match non trouvé");
+        throw new SafeActionError("Match non trouvé");
       }
 
       const match = matchData.match;
@@ -28,7 +29,7 @@ export const createKickStatAction = actionUser
       });
 
       if (!statType) {
-        throw new SafeError("Type de statistique non trouvé");
+        throw new SafeActionError("Type de statistique non trouvé");
       }
 
       // Créer les statistiques à mettre à jour
@@ -66,7 +67,7 @@ export const createKickStatAction = actionUser
       });
 
       if (!statResult.success || !statResult.stats || statResult.stats.length === 0) {
-        throw new SafeError("Erreur lors de la création des statistiques");
+        throw new SafeActionError("Erreur lors de la création des statistiques");
       }
 
       // Utiliser la première statistique créée/mise à jour (qui correspond au type principal)
@@ -83,7 +84,7 @@ export const createKickStatAction = actionUser
       });
 
       if (!kickStatResult.success) {
-        throw new SafeError(kickStatResult.error || "Erreur lors de la création des détails de coup de pied");
+        throw new SafeActionError(kickStatResult.error || "Erreur lors de la création des détails de coup de pied");
       }
 
       return {
@@ -93,10 +94,10 @@ export const createKickStatAction = actionUser
         updatedStats: statResult.stats.length,
       };
     } catch (error) {
-      if (error instanceof SafeError) {
+      if (error instanceof SafeActionError) {
         throw error;
       }
       console.error("Error in kick stat creation:", error);
-      throw new SafeError("Une erreur inattendue s'est produite");
+      throw new SafeActionError("Une erreur inattendue s'est produite");
     }
   });

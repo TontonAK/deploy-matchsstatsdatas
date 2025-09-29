@@ -34,7 +34,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 interface MatchEventTypes {
   id: number;
   name: string;
-  group: MatchEventGroup;
+  group: MatchEventGroup | null;
 }
 
 interface MatchLineup {
@@ -115,7 +115,10 @@ export default function LiveActions({
       onEventCreated();
     },
     onError: (error) => {
-      toast.error(error.error.serverError || "Erreur lors de l'enregistrement de l'événement");
+      const errorMessage = typeof error.error.serverError === 'string'
+        ? error.error.serverError
+        : "Erreur lors de l'enregistrement de l'événement";
+      toast.error(errorMessage);
     },
   });
 

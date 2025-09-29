@@ -114,7 +114,7 @@ export default function TestActionContent({
   matchData,
   matchEventTypes,
   matchLineup,
-  matchUlid,
+  matchUlid: _matchUlid,
 }: TestActionContentProps) {
   const [events, setEvents] = useState<TestEvent[]>([]);
 
@@ -259,14 +259,17 @@ export default function TestActionContent({
   };
 
   // Grouper les événements par minute
-  const eventsByMinute = events.reduce((acc, event) => {
-    const minute = event.minute;
-    if (!acc[minute]) {
-      acc[minute] = [];
-    }
-    acc[minute].push(event);
-    return acc;
-  }, {} as Record<number, TestEvent[]>);
+  const eventsByMinute = events.reduce(
+    (acc, event) => {
+      const minute = event.minute;
+      if (!acc[minute]) {
+        acc[minute] = [];
+      }
+      acc[minute].push(event);
+      return acc;
+    },
+    {} as Record<number, TestEvent[]>
+  );
 
   const sortedMinutes = Object.keys(eventsByMinute)
     .map(Number)
@@ -398,11 +401,9 @@ export default function TestActionContent({
                                       {getEventIcon(event.eventType.name)}
                                     </span>
                                     <Badge
-                                      variant={
-                                        getEventBadgeVariant(
-                                          event.eventType.name
-                                        ) as any
-                                      }
+                                      variant={getEventBadgeVariant(
+                                        event.eventType.name
+                                      )}
                                     >
                                       {event.eventType.name}
                                     </Badge>

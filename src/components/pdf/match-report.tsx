@@ -1,5 +1,5 @@
-interface MatchReportProps {
+/*interface MatchReportProps {
   matchUlid: string;
 }
 
-export function MatchReportPDF({ matchUlid }: MatchReportProps) {}
+export function MatchReportPDF({ matchUlid }: MatchReportProps) {}*/

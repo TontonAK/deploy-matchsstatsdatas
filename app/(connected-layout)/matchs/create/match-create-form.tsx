@@ -157,9 +157,10 @@ export const MatchCreateForm = ({
 
   const { execute, isPending } = useAction(createMatchSafeAction, {
     onError: (error) => {
-      toast.error(
-        error.error.serverError ?? "Erreur lors de la création du match"
-      );
+      const errorMessage = typeof error.error.serverError === 'string'
+        ? error.error.serverError
+        : "Erreur lors de la création du match";
+      toast.error(errorMessage);
       setIsLoading(false);
     },
     onSuccess: () => {
@@ -218,9 +219,10 @@ export const MatchCreateForm = ({
     }
   });
 
-  const isAmicalMatch =
+  const isAmicalMatch = !!(
     selectedMatchType &&
-    matchTypes.find((mt) => mt.id === selectedMatchType)?.name === "Amical";
+    matchTypes.find((mt) => mt.id === selectedMatchType)?.name === "Amical"
+  );
 
   const isChampionnatMatch =
     selectedMatchType &&

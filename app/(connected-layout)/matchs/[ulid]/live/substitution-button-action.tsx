@@ -102,7 +102,10 @@ export default function SubstitutionButtonAction({
       onEventCreated();
     },
     onError: (error) => {
-      toast.error(error.error.serverError || "Erreur lors de l'enregistrement du remplacement");
+      const errorMessage = typeof error.error.serverError === 'string'
+        ? error.error.serverError
+        : "Erreur lors de l'enregistrement du remplacement";
+      toast.error(errorMessage);
     },
   });
 

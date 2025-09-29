@@ -173,12 +173,13 @@ export const createOrUpdateMatchPlayerStats = async (
   try {
     // Vérifier l'utilisateur connecté et ses permissions
     const currentUser = await getUser();
-    /*if (!currentUser || currentUser.job !== "Admin") {
+    if (!currentUser || currentUser.role !== "admin") {
       return {
         success: false,
-        error: "Permission insuffisante. Seuls les administrateurs peuvent modifier les statistiques.",
+        error:
+          "Permission insuffisante. Seuls les administrateurs peuvent modifier les statistiques.",
       };
-    }*/
+    }
 
     // Vérifier que le match existe et est terminé
     const match = await prisma.match.findUnique({

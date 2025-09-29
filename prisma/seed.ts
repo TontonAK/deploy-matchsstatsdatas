@@ -1,14 +1,12 @@
-import { randomBytes, scrypt } from "crypto";
-import { promisify } from "util";
 import { PrismaClient } from "../src/generated/prisma";
 
-const scryptAsync = promisify(scrypt);
+//const scryptAsync = promisify(scrypt);
 
-async function hashPassword(password: string): Promise<string> {
+/*async function hashPassword(password: string): Promise<string> {
   const salt = randomBytes(32);
   const derivedKey = (await scryptAsync(password, salt, 64)) as Buffer;
   return `${salt.toString("hex")}:${derivedKey.toString("hex")}`;
-}
+}*/
 
 const prisma = new PrismaClient();
 

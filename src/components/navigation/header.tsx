@@ -13,13 +13,9 @@ import {
   UserPen,
   Users,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { unauthorized } from "next/navigation";
-import {
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "../ui/accordion";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import {
   DropdownMenu,
@@ -137,7 +133,13 @@ export default async function Header() {
           <div className="flex items-center gap-6">
             {/* Logo */}
             <div className="flex items-center gap-2">
-              <img src={player.club.logo} className="max-h-8" />
+              <Image
+                src={player.club.logo ?? "/default-logo.png"}
+                alt="Logo"
+                width={32}
+                height={32}
+                className="object-cover"
+              />
               <span className="text-lg font-semibold tracking-tighter">
                 {player.club.name}
               </span>
@@ -156,7 +158,7 @@ export default async function Header() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={player.image} />
+                  <AvatarImage src={player.image ?? "/default-player.png"} />
                   <AvatarFallback className="rounded-lg">
                     {GotFirstCharacter(player.firstname)}
                     {GotFirstCharacter(player.lastname)}
@@ -242,7 +244,7 @@ const renderMenuItem = (item: MenuItem) => {
   );
 };
 
-const renderMobileMenuItem = (item: MenuItem) => {
+/*const renderMobileMenuItem = (item: MenuItem) => {
   if (item.items) {
     return (
       <AccordionItem key={item.title} value={item.title} className="border-b-0">
@@ -263,7 +265,7 @@ const renderMobileMenuItem = (item: MenuItem) => {
       {item.title}
     </a>
   );
-};
+};*/
 
 const SubMenuLink = ({ item }: { item: MenuItem }) => {
   return (

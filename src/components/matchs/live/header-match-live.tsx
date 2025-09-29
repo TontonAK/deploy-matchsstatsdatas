@@ -38,9 +38,10 @@ export default function HeaderMatchLive({
       onLiveStarted();
     },
     onError: (error) => {
-      toast.error(
-        error.error.serverError || "Erreur lors du démarrage du live"
-      );
+      const errorMessage = typeof error.error.serverError === 'string'
+        ? error.error.serverError
+        : "Erreur lors du démarrage du live";
+      toast.error(errorMessage);
     },
   });
 

@@ -1,6 +1,7 @@
 "use server";
 
-import { actionUser, SafeError } from "@/lib/safe-action-client";
+import { actionUser } from "@/lib/safe-action-client";
+import { SafeActionError } from "@/lib/errors";
 import { LineoutStatCreateSchema } from "@/schemas/lineout-stat-create.schema";
 import { createOrUpdatePlayerStats } from "@/database/statistics/create-or-update-player-stats";
 import { createLineoutStat } from "@/database/statistics/create-or-update-lineout-stat";
@@ -16,7 +17,7 @@ export const createLineoutStatAction = actionUser
       const matchData = await getMatchLineupData(matchUlid);
       
       if (!matchData.success || !matchData.match) {
-        throw new SafeError("Match non trouvé");
+        throw new SafeActionError("Match non trouvé");
       }
 
       const match = matchData.match;
@@ -38,7 +39,7 @@ export const createLineoutStatAction = actionUser
       });
 
       if (!statResult.success || !statResult.stats || statResult.stats.length === 0) {
-        throw new SafeError("Erreur lors de la création de la statistique");
+        throw new SafeActionError("Erreur lors de la création de la statistique");
       }
 
       const createdStat = statResult.stats[0];
@@ -54,7 +55,7 @@ export const createLineoutStatAction = actionUser
       });
 
       if (!lineoutStatResult.success) {
-        throw new SafeError(lineoutStatResult.error || "Erreur lors de la création des détails de touche");
+        throw new SafeActionError(lineoutStatResult.error || "Erreur lors de la création des détails de touche");
       }
 
       return {
@@ -63,10 +64,10 @@ export const createLineoutStatAction = actionUser
         lineoutStatId: lineoutStatResult.lineoutStat?.id,
       };
     } catch (error) {
-      if (error instanceof SafeError) {
+      if (error instanceof SafeActionError) {
         throw error;
       }
       console.error("Error in lineout stat creation:", error);
-      throw new SafeError("Une erreur inattendue s'est produite");
+      throw new SafeActionError("Une erreur inattendue s'est produite");
     }
   });

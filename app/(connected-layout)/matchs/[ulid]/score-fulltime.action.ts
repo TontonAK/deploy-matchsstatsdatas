@@ -1,6 +1,7 @@
 "use server";
 
-import { actionUser, SafeError } from "@/lib/safe-action-client";
+import { actionUser } from "@/lib/safe-action-client";
+import { SafeActionError } from "@/lib/errors";
 import { updateMatchFinalScore } from "@/database/matchs/update-match";
 import { prisma } from "@/lib/prisma";
 import { MatchResult } from "@/generated/prisma";
@@ -20,7 +21,7 @@ export const scoreFulltimeAction = actionUser
   .action(async ({ parsedInput: input, ctx: { user } }) => {
     // Vérifier les permissions : Admin ou Coach
     if (user.job !== "Admin" && user.job !== "Coach") {
-      throw new SafeError("Seuls les administrateurs et entraîneurs peuvent modifier le score final");
+      throw new SafeActionError("Seuls les administrateurs et entraîneurs peuvent modifier le score final");
     }
 
     // Récupérer les détails du match
@@ -63,7 +64,7 @@ export const scoreFulltimeAction = actionUser
     });
 
     if (!match) {
-      throw new SafeError("Match non trouvé");
+      throw new SafeActionError("Match non trouvé");
     }
 
     // Vérifier que l'utilisateur appartient à une des équipes du match ou est admin global
@@ -87,7 +88,7 @@ export const scoreFulltimeAction = actionUser
       const hasAccess = userClubIds.some(clubId => matchClubIds.includes(clubId));
 
       if (!hasAccess) {
-        throw new SafeError("Vous n'avez pas l'autorisation de modifier le score final pour ce match");
+        throw new SafeActionError("Vous n'avez pas l'autorisation de modifier le score final pour ce match");
       }
     }
 
@@ -110,7 +111,7 @@ export const scoreFulltimeAction = actionUser
         [MatchResult.Draw]: "Match nul",
       };
 
-      throw new SafeError(
+      throw new SafeActionError(
         `Le résultat sélectionné "${resultLabels[result]}" ne correspond pas aux scores saisis (${homeScore}-${awayScore}). Le résultat devrait être "${resultLabels[expectedResult]}".`
       );
     }
@@ -125,7 +126,7 @@ export const scoreFulltimeAction = actionUser
       });
 
       if (!updateResult.success) {
-        throw new SafeError(updateResult.error || "Erreur lors de l'enregistrement du score final");
+        throw new SafeActionError(updateResult.error || "Erreur lors de l'enregistrement du score final");
       }
 
       const hasExistingScore = match.scoreHomeTeam !== null && match.scoreAwayTeam !== null;
@@ -156,9 +157,9 @@ export const scoreFulltimeAction = actionUser
       };
     } catch (error) {
       console.error("Erreur lors de l'enregistrement du score final:", error);
-      if (error instanceof SafeError) {
+      if (error instanceof SafeActionError) {
         throw error;
       }
-      throw new SafeError("Erreur lors de l'enregistrement du score final");
+      throw new SafeActionError("Erreur lors de l'enregistrement du score final");
     }
   });

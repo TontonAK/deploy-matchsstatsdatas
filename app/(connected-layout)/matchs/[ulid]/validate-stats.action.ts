@@ -1,7 +1,8 @@
 "use server";
 
 import { updateMatchStatus } from "@/database/matchs/update-match";
-import { actionUser, SafeError } from "@/lib/safe-action-client";
+import { actionUser } from "@/lib/safe-action-client";
+import { SafeActionError } from "@/lib/errors";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
@@ -14,7 +15,7 @@ export const validateMatchStatsAction = actionUser
   .action(async ({ parsedInput: input, ctx: { user } }) => {
     // Vérifier que l'utilisateur a le rôle Admin
     if (user.job !== "Admin") {
-      throw new SafeError("Seuls les administrateurs peuvent valider les statistiques");
+      throw new SafeActionError("Seuls les administrateurs peuvent valider les statistiques");
     }
 
     // Récupérer les détails du match
@@ -40,16 +41,16 @@ export const validateMatchStatsAction = actionUser
     });
 
     if (!match) {
-      throw new SafeError("Match non trouvé");
+      throw new SafeActionError("Match non trouvé");
     }
 
     // Vérifier que le match est terminé et que les stats ne sont pas encore envoyées
     if (match.status !== "Finish") {
-      throw new SafeError("Seuls les matchs terminés peuvent avoir leurs statistiques validées");
+      throw new SafeActionError("Seuls les matchs terminés peuvent avoir leurs statistiques validées");
     }
 
     if (match.endingStatus !== "Stat_Not_Sending") {
-      throw new SafeError("Les statistiques de ce match ont déjà été validées ou sont en cours de traitement");
+      throw new SafeActionError("Les statistiques de ce match ont déjà été validées ou sont en cours de traitement");
     }
 
     // Vérifier que l'utilisateur appartient à une des équipes du match ou est admin global
@@ -73,7 +74,7 @@ export const validateMatchStatsAction = actionUser
       const hasAccess = userClubIds.some(clubId => matchClubIds.includes(clubId));
       
       if (!hasAccess) {
-        throw new SafeError("Vous n'avez pas l'autorisation de valider les statistiques de ce match");
+        throw new SafeActionError("Vous n'avez pas l'autorisation de valider les statistiques de ce match");
       }
     }
 
@@ -84,7 +85,7 @@ export const validateMatchStatsAction = actionUser
     });
 
     if (!result.success) {
-      throw new SafeError(result.error || "Erreur lors de la validation des statistiques");
+      throw new SafeActionError(result.error || "Erreur lors de la validation des statistiques");
     }
 
     return {

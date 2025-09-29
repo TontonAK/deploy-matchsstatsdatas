@@ -50,7 +50,7 @@ export default async function AdminPlayersPage({
   const [playersResult, clubsResult] = await Promise.all([
     getPlayers({
       search,
-      clubId,
+      clubId: clubId ?? undefined,
       sortBy,
       page,
       limit: 10,
@@ -58,7 +58,7 @@ export default async function AdminPlayersPage({
     getClubsWithTeams(),
   ]);
 
-  if (!playersResult.success || !clubsResult.success) {
+  if (!playersResult.success || !clubsResult.success || !playersResult.data) {
     return (
       <div className="container mx-auto py-8">
         <Card>

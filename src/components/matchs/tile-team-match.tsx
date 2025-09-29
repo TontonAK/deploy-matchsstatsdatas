@@ -28,7 +28,7 @@ export function TileTeamMatch(tileProps: TileMatchProps) {
       {/* Logo du club centré entre les barres */}
       <div className="absolute inset-0 top-1/2 flex flex-col items-center justify-center z-10">
         <Image
-          src={tileProps.logoUrl}
+          src={tileProps.logoUrl ?? "/default-logo.png"}
           alt="Logo du club"
           width={100}
           height={100}

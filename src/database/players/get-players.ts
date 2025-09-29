@@ -14,7 +14,7 @@ export interface PlayerWithRelations {
   firstname: string;
   lastname: string;
   name: string | null;
-  email: string;
+  email: string | null;
   image: string | null;
   job: Role;
   club: {

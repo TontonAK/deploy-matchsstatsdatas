@@ -1,12 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+interface StatType {
+  id: number;
+  name: string;
+}
+
+interface Stat {
+  id: number;
+  value: number;
+  statType: StatType;
+  matchId: number;
+}
+
+interface Match {
+  id: number;
+  result: string | null;
+}
+
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const teamId = parseInt(params.id);
+    const { id } = await params;
+    const teamId = parseInt(id);
 
     if (isNaN(teamId)) {
       return NextResponse.json(
@@ -51,32 +69,35 @@ export async function GET(
     const totalMatches = teamData.homeMatches.length + teamData.awayMatches.length;
     let wins = 0, draws = 0, losses = 0;
 
-    teamData.homeMatches.forEach((match: any) => {
+    teamData.homeMatches.forEach((match: Match) => {
       if (match.result === "Home_Win") wins++;
       else if (match.result === "Draw") draws++;
       else if (match.result === "Away_Win") losses++;
     });
 
-    teamData.awayMatches.forEach((match: any) => {
+    teamData.awayMatches.forEach((match: Match) => {
       if (match.result === "Away_Win") wins++;
       else if (match.result === "Draw") draws++;
       else if (match.result === "Home_Win") losses++;
     });
 
     // Agréger les statistiques par type
-    const statsMap = new Map<string, { values: number[]; statType: any }>();
+    const statsMap = new Map<string, { values: number[]; statType: StatType }>();
 
-    teamData.stats.forEach((stat: any) => {
+    teamData.stats.forEach((stat: Stat) => {
       if (!statsMap.has(stat.statType.name)) {
         statsMap.set(stat.statType.name, {
           values: [],
           statType: stat.statType,
         });
       }
-      statsMap.get(stat.statType.name)!.values.push(stat.value);
+      const statData = statsMap.get(stat.statType.name);
+      if (statData) {
+        statData.values.push(stat.value);
+      }
     });
 
-    const aggregatedStats: Record<string, { value: number; statType: any }> = {};
+    const aggregatedStats: Record<string, { value: number; statType: StatType }> = {};
     statsMap.forEach((data, statName) => {
       const total = data.values.reduce((sum, val) => sum + val, 0);
       aggregatedStats[statName] = {

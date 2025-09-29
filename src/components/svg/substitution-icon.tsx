@@ -1,6 +1,10 @@
-export default function SubstitutionIcon() {
+interface SubstitutionIconProps {
+  className?: string;
+}
+
+export default function SubstitutionIcon({ className }: SubstitutionIconProps = {}) {
   return (
-    <svg height="24" width="24" viewBox="0 0 24 24" className="shrink-0">
+    <svg height="24" width="24" viewBox="0 0 24 24" className={className || "shrink-0"}>
       <path
         fill-rule="evenodd"
         clip-rule="evenodd"

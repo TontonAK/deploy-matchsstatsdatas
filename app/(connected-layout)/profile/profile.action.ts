@@ -4,7 +4,8 @@ import { updateProfileUser } from "@/database/players/update-profile-user";
 import { uploadFileToS3 } from "@/features/image-upload/awss3.utils";
 import { authClient } from "@/lib/auth-client";
 import { prisma } from "@/lib/prisma";
-import { actionUser, SafeError } from "@/lib/safe-action-client";
+import { actionUser } from "@/lib/safe-action-client";
+import { SafeActionError } from "@/lib/errors";
 import { ProfileUpdateSchema } from "@/schemas/profile-update.schema";
 
 export const updateProfileSafeAction = actionUser
@@ -16,7 +17,7 @@ export const updateProfileSafeAction = actionUser
     if (input.image && input.image instanceof File) {
       // Vérifier la taille du fichier (max 5MB)
       if (input.image.size > 5 * 1024 * 1024) {
-        throw new SafeError("La taille du fichier doit être inférieure à 5MB");
+        throw new SafeActionError("La taille du fichier doit être inférieure à 5MB");
       }
 
       imageUrl = await uploadFileToS3({
@@ -26,7 +27,7 @@ export const updateProfileSafeAction = actionUser
       });
 
       if (!imageUrl) {
-        throw new SafeError("Échec de l'upload de l'image");
+        throw new SafeActionError("Échec de l'upload de l'image");
       }
 
       // Mettre à jour l'image dans la base de données
@@ -44,7 +45,7 @@ export const updateProfileSafeAction = actionUser
     });
 
     if (!updateResult.success) {
-      throw new SafeError(
+      throw new SafeActionError(
         updateResult.error ??
           "Une erreur est survenue durant la mise à jour du profil"
       );

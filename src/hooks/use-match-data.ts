@@ -12,7 +12,7 @@ export interface MatchStats {
       name: string;
       primaryColor: string;
       secondaryColor: string;
-      logo?: string;
+      logo?: string | undefined;
     };
     stats: TeamStatsSummary;
     playerStats: PlayerStats[];
@@ -24,7 +24,7 @@ export interface MatchStats {
       name: string;
       primaryColor: string;
       secondaryColor: string;
-      logo?: string;
+      logo?: string | undefined;
     };
     stats: TeamStatsSummary;
     playerStats: PlayerStats[];
@@ -33,7 +33,7 @@ export interface MatchStats {
     schedule: Date;
     status: string;
     endingStatus: string;
-    result?: string;
+    result?: string | undefined | null;
     nbPlayerLineup: number;
     stadium: {
       id: number;
@@ -44,11 +44,11 @@ export interface MatchStats {
       name: string;
       numberPeriod: number;
       durationPeriod: number;
-      extratimeNumberPeriod?: number;
-      extratimeDurationPeriod?: number;
+      extratimeNumberPeriod?: number | undefined | null;
+      extratimeDurationPeriod?: number | undefined | null;
     };
-    scoreHomeTeam?: number;
-    scoreAwayTeam?: number;
+    scoreHomeTeam?: number | undefined | null;
+    scoreAwayTeam?: number | undefined | null;
     seasonLeagueMatch?: {
       seasonLeague: {
         league?: {
@@ -60,7 +60,7 @@ export interface MatchStats {
         typeMatch: {
           name: string;
         };
-        gameDay?: number;
+        gameDay?: number | undefined | null;
       };
     };
     halfTimeScore?: {
@@ -178,7 +178,10 @@ export function useMatchData(): UseMatchDataReturn {
     async (matchUlid: string): Promise<MatchStats | null> => {
       // Vérifier le cache d'abord
       if (matchDataCache.has(matchUlid)) {
-        return matchDataCache.get(matchUlid)!;
+        const cachedData = matchDataCache.get(matchUlid);
+        if (cachedData) {
+          return cachedData;
+        }
       }
 
       setLoading(true);
@@ -215,7 +218,10 @@ export function useMatchData(): UseMatchDataReturn {
   const getTeamGeneralStats = useCallback(
     async (teamId: number): Promise<TeamGeneralStats | null> => {
       if (teamStatsCache.has(teamId)) {
-        return teamStatsCache.get(teamId)!;
+        const cachedStats = teamStatsCache.get(teamId);
+        if (cachedStats) {
+          return cachedStats;
+        }
       }
 
       setLoading(true);
@@ -251,7 +257,10 @@ export function useMatchData(): UseMatchDataReturn {
   const getPlayerGeneralStats = useCallback(
     async (playerId: string): Promise<PlayerGeneralStats | null> => {
       if (playerStatsCache.has(playerId)) {
-        return playerStatsCache.get(playerId)!;
+        const cachedStats = playerStatsCache.get(playerId);
+        if (cachedStats) {
+          return cachedStats;
+        }
       }
 
       setLoading(true);

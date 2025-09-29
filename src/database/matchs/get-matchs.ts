@@ -1,4 +1,4 @@
-import { MatchResult } from "@/generated/prisma";
+import { MatchResult, Prisma } from "@/generated/prisma";
 import type { MatchStats } from "@/hooks/use-match-data";
 import { prisma } from "@/lib/prisma";
 
@@ -67,45 +67,51 @@ const SELECT_QUERY = {
 };
 
 export interface MatchWithRelations {
-  id: string;
+  id: number;
   ulid: string;
   schedule: Date;
+  status: string;
+  endingStatus: string;
   result: MatchResult | null;
+  nbPlayerLineup: number;
   scoreHomeTeam: number | null;
   scoreAwayTeam: number | null;
   stadium: {
+    id: number;
     name: string;
   };
   seasonLeagueMatch: {
     seasonLeague: {
       league: {
         name: string;
-      };
+      } | null;
       leaguePool: {
         pool: string;
-      };
+      } | null;
       typeMatch: {
         name: string;
       };
-      gameDay: number;
+      gameDay: number | null;
     };
-  };
+  } | null;
   homeTeam: {
+    id: number;
     name: string;
     club: {
       name: string;
       primaryColor: string;
       secondaryColor: string;
-      logo: string;
+      logo: string | null;
     };
   };
   awayTeam: {
+    id: number;
     name: string;
     club: {
       name: string;
       primaryColor: string;
       secondaryColor: string;
-      logo: string;
+      logo: string | null;
     };
   };
 }
@@ -266,8 +272,8 @@ export const getMatchDetails = async (
             id: true,
             homeScore: true,
             awayScore: true,
-          }
-        }
+          },
+        },
       },
     });
 
@@ -277,27 +283,27 @@ export const getMatchDetails = async (
 
     // Transform to match MatchStats interface
     return {
-      matchId: parseInt(match.id),
+      matchId: match.id,
       homeTeam: {
-        id: parseInt(match.homeTeam.id),
+        id: match.homeTeam.id,
         name: match.homeTeam.name,
         club: {
           name: match.homeTeam.club.name,
           primaryColor: match.homeTeam.club.primaryColor,
           secondaryColor: match.homeTeam.club.secondaryColor,
-          logo: match.homeTeam.club.logo,
+          logo: match.homeTeam.club.logo ?? "/default-logo.png",
         },
         stats: {}, // TODO: Add team stats
         playerStats: [], // TODO: Add player stats
       },
       awayTeam: {
-        id: parseInt(match.awayTeam.id),
+        id: match.awayTeam.id,
         name: match.awayTeam.name,
         club: {
           name: match.awayTeam.club.name,
           primaryColor: match.awayTeam.club.primaryColor,
           secondaryColor: match.awayTeam.club.secondaryColor,
-          logo: match.awayTeam.club.logo,
+          logo: match.awayTeam.club.logo ?? "/default-logo.png",
         },
         stats: {}, // TODO: Add team stats
         playerStats: [], // TODO: Add player stats
@@ -309,11 +315,11 @@ export const getMatchDetails = async (
         result: match.result,
         nbPlayerLineup: match.nbPlayerLineup,
         stadium: {
-          id: parseInt(match.stadium.id),
+          id: match.stadium.id,
           name: match.stadium.name,
         },
         periodType: {
-          id: parseInt(match.periodType.id),
+          id: match.periodType.id,
           name: match.periodType.name,
           numberPeriod: match.periodType.numberPeriod,
           durationPeriod: match.periodType.durationPeriod,
@@ -368,7 +374,7 @@ export const getFilteredMatchs = async ({
     const skip = (page - 1) * pageSize;
 
     // Build where clause
-    const whereClause: any = {};
+    const whereClause: Prisma.MatchWhereInput = {};
 
     // Filter by season
     if (seasonId) {
@@ -406,7 +412,75 @@ export const getFilteredMatchs = async ({
     // Get matches with pagination
     const matches = await prisma.match.findMany({
       where: whereClause,
-      select: SELECT_QUERY,
+      select: {
+        id: true,
+        ulid: true,
+        schedule: true,
+        status: true,
+        endingStatus: true,
+        result: true,
+        nbPlayerLineup: true,
+        scoreHomeTeam: true,
+        scoreAwayTeam: true,
+        stadium: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        seasonLeagueMatch: {
+          select: {
+            seasonLeague: {
+              select: {
+                league: {
+                  select: {
+                    name: true,
+                  },
+                },
+                leaguePool: {
+                  select: {
+                    pool: true,
+                  },
+                },
+                typeMatch: {
+                  select: {
+                    name: true,
+                  },
+                },
+                gameDay: true,
+              },
+            },
+          },
+        },
+        homeTeam: {
+          select: {
+            id: true,
+            name: true,
+            club: {
+              select: {
+                name: true,
+                primaryColor: true,
+                secondaryColor: true,
+                logo: true,
+              },
+            },
+          },
+        },
+        awayTeam: {
+          select: {
+            id: true,
+            name: true,
+            club: {
+              select: {
+                name: true,
+                primaryColor: true,
+                secondaryColor: true,
+                logo: true,
+              },
+            },
+          },
+        },
+      },
       orderBy: {
         schedule: "asc",
       },

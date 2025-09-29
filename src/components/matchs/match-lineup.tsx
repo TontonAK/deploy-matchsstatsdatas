@@ -19,6 +19,10 @@ interface PlayerCardProps {
   isOnPitch?: boolean;
 }
 
+interface PitchPlayerCardProps {
+  player: MatchLineupPlayer | undefined;
+}
+
 const PlayerCard = ({
   player,
   matchUlid,
@@ -47,29 +51,54 @@ const PlayerCard = ({
   );
 };
 
-const PitchPlayerCard = ({ player }: PlayerCardProps) => {
-  return (
-    <>
-      <div className="has-image pitch-player-card-image relative overflow-hidden hidden sm:block mx-1">
-        <Image
-          src={player.image || "/default-player.png"}
-          alt={`${player.firstname} ${player.lastname}`}
-          fill={true}
-          className="object-contain absolute top-0"
-        />
-      </div>
-      <div className="w-full flex flex-col relative z-1 sm:-mt-6">
-        <ul className="flex h-4 md:h-6 space-x-0.5 md:space-x-1">
-          <li className="flex items-center justify-center min-w-[24px] px-1 rounded-t bg-white text-mono-50 text-body-2 leading-[1.2] font-bold">
-            {player.number}
-          </li>
-        </ul>
-        <div className="px-1 py-1 sm:px-3 bg-white font-bold text-xl md:text-caption tracking-[0.4px] md:tracking-[0.48px] leading-[12px] md:leading-5 rounded rounded-tl-none text-center overflow-hidden overflow-ellipsis shadow-md">
-          {player.firstname} {player.lastname}
+const PitchPlayerCard = ({ player }: PitchPlayerCardProps) => {
+  if (player) {
+    return (
+      <>
+        <div className="has-image pitch-player-card-image relative overflow-hidden hidden sm:block mx-1">
+          <Image
+            src={player.image || "/default-player.png"}
+            alt={`${player.firstname} ${player.lastname}`}
+            fill={true}
+            className="object-contain absolute top-0"
+          />
         </div>
-      </div>
-    </>
-  );
+        <div className="w-full flex flex-col relative z-1 sm:-mt-6">
+          <ul className="flex h-4 md:h-6 space-x-0.5 md:space-x-1">
+            <li className="flex items-center justify-center min-w-[24px] px-1 rounded-t bg-white text-mono-50 text-body-2 leading-[1.2] font-bold">
+              {player.number}
+            </li>
+          </ul>
+          <div className="px-1 py-1 sm:px-3 bg-white font-bold text-xl md:text-caption tracking-[0.4px] md:tracking-[0.48px] leading-[12px] md:leading-5 rounded rounded-tl-none text-center overflow-hidden overflow-ellipsis shadow-md">
+            {player.firstname} {player.lastname}
+          </div>
+        </div>
+      </>
+    );
+  } else {
+    return (
+      <>
+        <div className="has-image pitch-player-card-image relative overflow-hidden hidden sm:block mx-1">
+          <Image
+            src={"/default-player.png"}
+            alt="Joueur par défaut"
+            fill={true}
+            className="object-contain absolute top-0"
+          />
+        </div>
+        <div className="w-full flex flex-col relative z-1 sm:-mt-6">
+          <ul className="flex h-4 md:h-6 space-x-0.5 md:space-x-1">
+            <li className="flex items-center justify-center min-w-[24px] px-1 rounded-t bg-white text-mono-50 text-body-2 leading-[1.2] font-bold">
+              0
+            </li>
+          </ul>
+          <div className="px-1 py-1 sm:px-3 bg-white font-bold text-xl md:text-caption tracking-[0.4px] md:tracking-[0.48px] leading-[12px] md:leading-5 rounded rounded-tl-none text-center overflow-hidden overflow-ellipsis shadow-md">
+            Joueur inconnu
+          </div>
+        </div>
+      </>
+    );
+  }
 };
 
 export default function MatchLineup({

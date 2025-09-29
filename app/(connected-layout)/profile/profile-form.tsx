@@ -72,7 +72,10 @@ export const ProfileForm = ({ user }: ProfileFormProps) => {
 
   const { execute } = useAction(updateProfileSafeAction, {
     onError: (error) => {
-      toast.error(error.error.serverError ?? "Erreur lors de la mise à jour");
+      const errorMessage = typeof error.error.serverError === 'string'
+        ? error.error.serverError
+        : "Erreur lors de la mise à jour";
+      toast.error(errorMessage);
       setIsLoading(false);
     },
     onSuccess: () => {

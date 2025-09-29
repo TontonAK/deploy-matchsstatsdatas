@@ -18,7 +18,6 @@ import {
   parseAsStringLiteral,
   useQueryState,
 } from "nuqs";
-import { useRouter } from "next/navigation";
 
 interface Club {
   id: number;
@@ -31,8 +30,6 @@ interface PlayerFiltersProps {
 }
 
 export function PlayerFilters({ clubs }: PlayerFiltersProps) {
-  const router = useRouter();
-
   const [search, setSearch] = useQueryState(
     "search",
     parseAsString.withDefault("").withOptions({
@@ -50,9 +47,11 @@ export function PlayerFilters({ clubs }: PlayerFiltersProps) {
 
   const [sortBy, setSortBy] = useQueryState(
     "sortBy",
-    parseAsStringLiteral(["name", "club"] as const).withDefault("name").withOptions({
-      shallow: false,
-    })
+    parseAsStringLiteral(["name", "club"] as const)
+      .withDefault("name")
+      .withOptions({
+        shallow: false,
+      })
   );
 
   const [, setPage] = useQueryState(

@@ -23,6 +23,10 @@ export const updateImageAction = async (formData: FormData) => {
     },
   });
 
+  if (!player) {
+    throw new Error("Player not found");
+  }
+
   const url = await uploadFileToS3({
     file,
     prefix: `players/${player.id}`,

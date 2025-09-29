@@ -1,7 +1,8 @@
 "use server";
 
 import { updateMatchStatus } from "@/database/matchs/update-match";
-import { actionUser, SafeError } from "@/lib/safe-action-client";
+import { actionUser } from "@/lib/safe-action-client";
+import { SafeActionError } from "@/lib/errors";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
@@ -14,11 +15,11 @@ export const startLiveAction = actionUser
   .action(async ({ parsedInput: input, ctx: { user } }) => {
     // Vérifier les permissions de l'utilisateur
     if (user.role !== "admin") {
-      throw new SafeError("Vous devez avoir le rôle admin pour démarrer le live");
+      throw new SafeActionError("Vous devez avoir le rôle admin pour démarrer le live");
     }
 
     if (user.job !== "Coach" && user.job !== "Admin") {
-      throw new SafeError(
+      throw new SafeActionError(
         "Vous n'avez pas les permissions nécessaires pour démarrer le live"
       );
     }
@@ -35,12 +36,12 @@ export const startLiveAction = actionUser
     });
 
     if (!match) {
-      throw new SafeError("Match non trouvé");
+      throw new SafeActionError("Match non trouvé");
     }
 
     // Vérifier que le match est en statut "Planned"
     if (match.status !== "Planned") {
-      throw new SafeError("Seuls les matchs planifiés peuvent être démarrés en live");
+      throw new SafeActionError("Seuls les matchs planifiés peuvent être démarrés en live");
     }
 
     // Vérifier que l'utilisateur appartient à une des équipes du match
@@ -55,7 +56,7 @@ export const startLiveAction = actionUser
     );
 
     if (!isUserInMatchTeam) {
-      throw new SafeError(
+      throw new SafeActionError(
         "Vous n'avez pas l'autorisation de démarrer le live pour ce match"
       );
     }
@@ -67,7 +68,7 @@ export const startLiveAction = actionUser
     });
 
     if (!result.success) {
-      throw new SafeError(result.error || "Erreur lors du démarrage du live");
+      throw new SafeActionError(result.error || "Erreur lors du démarrage du live");
     }
 
     return {

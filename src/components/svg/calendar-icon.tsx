@@ -132,11 +132,11 @@ export default function CalendarIcon() {
             width="21"
             height="19"
             filterUnits="userSpaceOnUse"
-            color-interpolation-filters="sRGB"
+            colorInterpolationFilters="sRGB"
           >
             {" "}
             <feFlood
-              flood-opacity="0"
+              floodOpacity="0"
               result="BackgroundImageFix"
             ></feFlood>{" "}
             <feColorMatrix
@@ -170,11 +170,11 @@ export default function CalendarIcon() {
             width="3"
             height="6"
             filterUnits="userSpaceOnUse"
-            color-interpolation-filters="sRGB"
+            colorInterpolationFilters="sRGB"
           >
             {" "}
             <feFlood
-              flood-opacity="0"
+              floodOpacity="0"
               result="BackgroundImageFix"
             ></feFlood>{" "}
             <feColorMatrix
@@ -208,11 +208,11 @@ export default function CalendarIcon() {
             width="3"
             height="6"
             filterUnits="userSpaceOnUse"
-            color-interpolation-filters="sRGB"
+            colorInterpolationFilters="sRGB"
           >
             {" "}
             <feFlood
-              flood-opacity="0"
+              floodOpacity="0"
               result="BackgroundImageFix"
             ></feFlood>{" "}
             <feColorMatrix
@@ -246,11 +246,11 @@ export default function CalendarIcon() {
             width="5"
             height="3"
             filterUnits="userSpaceOnUse"
-            color-interpolation-filters="sRGB"
+            colorInterpolationFilters="sRGB"
           >
             {" "}
             <feFlood
-              flood-opacity="0"
+              floodOpacity="0"
               result="BackgroundImageFix"
             ></feFlood>{" "}
             <feColorMatrix
@@ -284,11 +284,11 @@ export default function CalendarIcon() {
             width="5"
             height="3"
             filterUnits="userSpaceOnUse"
-            color-interpolation-filters="sRGB"
+            colorInterpolationFilters="sRGB"
           >
             {" "}
             <feFlood
-              flood-opacity="0"
+              floodOpacity="0"
               result="BackgroundImageFix"
             ></feFlood>{" "}
             <feColorMatrix
@@ -322,11 +322,11 @@ export default function CalendarIcon() {
             width="5"
             height="3"
             filterUnits="userSpaceOnUse"
-            color-interpolation-filters="sRGB"
+            colorInterpolationFilters="sRGB"
           >
             {" "}
             <feFlood
-              flood-opacity="0"
+              floodOpacity="0"
               result="BackgroundImageFix"
             ></feFlood>{" "}
             <feColorMatrix
@@ -360,11 +360,11 @@ export default function CalendarIcon() {
             width="5"
             height="3"
             filterUnits="userSpaceOnUse"
-            color-interpolation-filters="sRGB"
+            colorInterpolationFilters="sRGB"
           >
             {" "}
             <feFlood
-              flood-opacity="0"
+              floodOpacity="0"
               result="BackgroundImageFix"
             ></feFlood>{" "}
             <feColorMatrix
@@ -398,11 +398,11 @@ export default function CalendarIcon() {
             width="5"
             height="3"
             filterUnits="userSpaceOnUse"
-            color-interpolation-filters="sRGB"
+            colorInterpolationFilters="sRGB"
           >
             {" "}
             <feFlood
-              flood-opacity="0"
+              floodOpacity="0"
               result="BackgroundImageFix"
             ></feFlood>{" "}
             <feColorMatrix
@@ -436,11 +436,11 @@ export default function CalendarIcon() {
             width="5"
             height="3"
             filterUnits="userSpaceOnUse"
-            color-interpolation-filters="sRGB"
+            colorInterpolationFilters="sRGB"
           >
             {" "}
             <feFlood
-              flood-opacity="0"
+              floodOpacity="0"
               result="BackgroundImageFix"
             ></feFlood>{" "}
             <feColorMatrix
@@ -474,11 +474,11 @@ export default function CalendarIcon() {
             width="5"
             height="3"
             filterUnits="userSpaceOnUse"
-            color-interpolation-filters="sRGB"
+            colorInterpolationFilters="sRGB"
           >
             {" "}
             <feFlood
-              flood-opacity="0"
+              floodOpacity="0"
               result="BackgroundImageFix"
             ></feFlood>{" "}
             <feColorMatrix
@@ -512,11 +512,11 @@ export default function CalendarIcon() {
             width="5"
             height="3"
             filterUnits="userSpaceOnUse"
-            color-interpolation-filters="sRGB"
+            colorInterpolationFilters="sRGB"
           >
             {" "}
             <feFlood
-              flood-opacity="0"
+              floodOpacity="0"
               result="BackgroundImageFix"
             ></feFlood>{" "}
             <feColorMatrix
@@ -550,11 +550,11 @@ export default function CalendarIcon() {
             width="5"
             height="3"
             filterUnits="userSpaceOnUse"
-            color-interpolation-filters="sRGB"
+            colorInterpolationFilters="sRGB"
           >
             {" "}
             <feFlood
-              flood-opacity="0"
+              floodOpacity="0"
               result="BackgroundImageFix"
             ></feFlood>{" "}
             <feColorMatrix

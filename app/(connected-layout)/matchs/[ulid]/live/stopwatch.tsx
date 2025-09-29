@@ -47,7 +47,10 @@ export default function Stopwatch({ matchPeriod, matchId, onMatchFinished }: Sto
       onMatchFinished();
     },
     onError: (error) => {
-      toast.error(error.error.serverError || "Erreur lors de la fin du match");
+      const errorMessage = typeof error.error.serverError === 'string'
+        ? error.error.serverError
+        : "Erreur lors de la fin du match";
+      toast.error(errorMessage);
     },
   });
 

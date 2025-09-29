@@ -79,7 +79,10 @@ export const ClubCreateForm = ({
 
   const { execute } = useAction(createClubSafeAction, {
     onError: (error) => {
-      toast.error(error.error.serverError ?? "Erreur lors de la création");
+      const errorMessage = typeof error.error.serverError === 'string'
+        ? error.error.serverError
+        : "Erreur lors de la création";
+      toast.error(errorMessage);
       setIsLoading(false);
     },
     onSuccess: () => {
@@ -107,14 +110,14 @@ export const ClubCreateForm = ({
 
   const addAlias = () => {
     if (aliasInput.trim()) {
-      const currentAliases = form.getValues("aliases");
+      const currentAliases = form.getValues("aliases") || [];
       form.setValue("aliases", [...currentAliases, aliasInput.trim()]);
       setAliasInput("");
     }
   };
 
   const removeAlias = (index: number) => {
-    const currentAliases = form.getValues("aliases");
+    const currentAliases = form.getValues("aliases") || [];
     form.setValue(
       "aliases",
       currentAliases.filter((_, i) => i !== index)
@@ -294,7 +297,7 @@ export const ClubCreateForm = ({
 
               {/* Liste des alias */}
               <div className="space-y-2">
-                {form.watch("aliases").map((alias, index) => (
+                {(form.watch("aliases") || []).map((alias, index) => (
                   <div
                     key={index}
                     className="flex items-center justify-between bg-gray-50 p-3 rounded"

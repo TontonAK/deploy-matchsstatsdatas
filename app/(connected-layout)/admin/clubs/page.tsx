@@ -47,7 +47,7 @@ export default async function AdminClubsPage({
     limit: 10,
   });
 
-  if (!clubsResult.success) {
+  if (!clubsResult.success || !clubsResult.data) {
     return (
       <div className="container mx-auto py-8">
         <Card>

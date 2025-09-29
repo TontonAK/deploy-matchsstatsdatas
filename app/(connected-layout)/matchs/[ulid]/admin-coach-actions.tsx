@@ -47,7 +47,10 @@ export function AdminCoachActions({
           // Rafraîchir la page pour mettre à jour l'état
           window.location.reload();
         } else {
-          toast.error(result?.serverError || "Erreur lors de la validation");
+          const errorMessage = typeof result?.serverError === 'string'
+            ? result.serverError
+            : "Erreur lors de la validation";
+          toast.error(errorMessage);
         }
       } catch {
         toast.error("Erreur inattendue lors de la validation");

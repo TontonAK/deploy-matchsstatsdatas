@@ -6,7 +6,7 @@ export const ClubCreateSchema = z.object({
   name: z.string().min(1, "Le nom du club est requis"),
   primaryColor: z.string().min(1, "La couleur primaire est requise"),
   secondaryColor: z.string().min(1, "La couleur secondaire est requise"),
-  aliases: z.array(z.string().min(1, "L'alias ne peut pas être vide")).optional().default([]),
+  aliases: z.array(z.string().min(1, "L'alias ne peut pas être vide")).optional(),
   stadiums: z.array(z.string().min(1, "Le nom du stade est requis")).min(1, "Au moins un stade est requis"),
   logo: z
     .any()

@@ -1,19 +1,20 @@
 import { getMatchFormData } from "@/database/matchs/create-match";
 import { getRequiredUser } from "@/lib/auth-session";
+import { redirect } from "next/navigation";
 import { MatchCreateForm } from "./match-create-form";
 
 export default async function CreateMatchPage() {
   const user = await getRequiredUser();
 
-  /*if (user.role !== "admin" || (user.job !== "Coach" && user.job !== "Admin")) {
+  if (user.role !== "admin") {
     redirect("/matchs");
-  }*/
+  }
 
   // Récupérer les données nécessaires au formulaire
   const formDataResult = await getMatchFormData();
 
-  if (!formDataResult.success) {
-    throw new Error(formDataResult.error);
+  if (!formDataResult.success || !formDataResult.data) {
+    throw new Error(formDataResult.error || "Failed to load form data");
   }
 
   const {
@@ -24,7 +25,7 @@ export default async function CreateMatchPage() {
     periodTypes,
     statTypes,
     stadiums,
-  } = formDataResult.data!;
+  } = formDataResult.data;
 
   return (
     <div className="container mx-auto py-8 px-4 max-w-4xl pt-15">

@@ -1,19 +1,67 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
+interface StatType {
+  id: number;
+  name: string;
+}
+
+interface Player {
+  id: string;
+  firstname: string;
+  lastname: string;
+  slug: string;
+}
+
+interface Stat {
+  id: number;
+  value: number;
+  statType: StatType;
+  player: Player | null;
+  matchId: number;
+}
+
+interface TeamWithStats {
+  id: number;
+  name: string;
+  club: {
+    id: number;
+    name: string;
+    primaryColor: string;
+    secondaryColor: string;
+    logo: string | null;
+  };
+  stats: Stat[];
+}
+
+interface PlayerStatsData {
+  playerId: string;
+  playerName: string;
+  playerSlug: string;
+  stats: Record<string, { value: number; statType: StatType }>;
+}
+
 export async function GET(
   request: NextRequest,
-  { params }: { params: { ulid: string } }
+  { params }: { params: Promise<{ ulid: string }> }
 ) {
   try {
-    const { ulid } = params;
+    const { ulid } = await params;
 
     const matchData = await prisma.match.findFirst({
       where: { ulid },
       include: {
         homeTeam: {
           include: {
-            club: true,
+            club: {
+              select: {
+                id: true,
+                name: true,
+                primaryColor: true,
+                secondaryColor: true,
+                logo: true,
+              },
+            },
             stats: {
               where: { match: { ulid } },
               include: {
@@ -25,7 +73,15 @@ export async function GET(
         },
         awayTeam: {
           include: {
-            club: true,
+            club: {
+              select: {
+                id: true,
+                name: true,
+                primaryColor: true,
+                secondaryColor: true,
+                logo: true,
+              },
+            },
             stats: {
               where: { match: { ulid } },
               include: {
@@ -50,11 +106,11 @@ export async function GET(
     }
 
     // Transformer les données pour le format attendu par le hook
-    const processTeamStats = (team: any) => {
-      const teamStats: Record<string, { value: number; statType: any }> = {};
-      const playerStatsMap = new Map<string, any>();
+    const processTeamStats = (team: TeamWithStats) => {
+      const teamStats: Record<string, { value: number; statType: StatType }> = {};
+      const playerStatsMap = new Map<string, PlayerStatsData>();
 
-      team.stats.forEach((stat: any) => {
+      team.stats.forEach((stat: Stat) => {
         if (!stat.player) {
           // Statistique d'équipe
           teamStats[stat.statType.name] = {
@@ -72,7 +128,8 @@ export async function GET(
             });
           }
 
-          const playerStats = playerStatsMap.get(stat.player.id)!;
+          const playerStats = playerStatsMap.get(stat.player.id);
+          if (!playerStats) return;
           playerStats.stats[stat.statType.name] = {
             value: stat.value,
             statType: stat.statType,

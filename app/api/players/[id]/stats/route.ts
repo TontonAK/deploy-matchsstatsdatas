@@ -1,12 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+interface StatType {
+  id: number;
+  name: string;
+}
+
+interface Stat {
+  id: number;
+  value: number;
+  statType: StatType;
+  matchId: number;
+}
+
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const playerId = params.id;
+    const { id: playerId } = await params;
 
     const playerData = await prisma.user.findUnique({
       where: { id: playerId },
@@ -46,10 +58,10 @@ export async function GET(
     }
 
     // Agréger les statistiques par type
-    const statsMap = new Map<string, { values: number[]; statType: any }>();
+    const statsMap = new Map<string, { values: number[]; statType: StatType }>();
     const matchIds = new Set<number>();
 
-    playerData.stats.forEach((stat: any) => {
+    playerData.stats.forEach((stat: Stat) => {
       matchIds.add(stat.matchId);
 
       if (!statsMap.has(stat.statType.name)) {
@@ -58,13 +70,16 @@ export async function GET(
           statType: stat.statType,
         });
       }
-      statsMap.get(stat.statType.name)!.values.push(stat.value);
+      const statData = statsMap.get(stat.statType.name);
+      if (statData) {
+        statData.values.push(stat.value);
+      }
     });
 
-    const aggregatedStats: Record<string, { 
-        totalValue: number; 
-        averageValue: number; 
-        statType: any; 
+    const aggregatedStats: Record<string, {
+        totalValue: number;
+        averageValue: number;
+        statType: StatType;
       }> = {};
 
     statsMap.forEach((data, statName) => {

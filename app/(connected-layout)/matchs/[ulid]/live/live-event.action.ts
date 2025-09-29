@@ -3,7 +3,8 @@
 import { createEvent } from "@/database/events/create-event";
 import { updateMatchScore } from "@/database/matchs/update-match";
 import { createOrUpdatePlayerStats } from "@/database/statistics/create-or-update-player-stats";
-import { actionUser, SafeError } from "@/lib/safe-action-client";
+import { actionUser } from "@/lib/safe-action-client";
+import { SafeActionError } from "@/lib/errors";
 import { EventType } from "@/lib/utils";
 import { LiveEventSchema } from "@/schemas/live-event.schema";
 import { prisma } from "@/lib/prisma";
@@ -13,11 +14,11 @@ export const createLiveEventAction = actionUser
   .action(async ({ parsedInput: input, ctx: { user } }) => {
     // Vérifier les permissions de l'utilisateur
     if (user.role !== "admin") {
-      throw new SafeError("Vous devez avoir le rôle admin pour enregistrer des événements");
+      throw new SafeActionError("Vous devez avoir le rôle admin pour enregistrer des événements");
     }
 
     if (user.job !== "Coach" && user.job !== "Admin") {
-      throw new SafeError(
+      throw new SafeActionError(
         "Vous n'avez pas les permissions nécessaires pour enregistrer des événements"
       );
     }
@@ -40,12 +41,12 @@ export const createLiveEventAction = actionUser
     });
 
     if (!match) {
-      throw new SafeError("Match non trouvé");
+      throw new SafeActionError("Match non trouvé");
     }
 
     // Vérifier que le match est en statut "Live"
     if (match.status !== "Live") {
-      throw new SafeError("Le match doit être en cours pour enregistrer des événements");
+      throw new SafeActionError("Le match doit être en cours pour enregistrer des événements");
     }
 
     // Vérifier que l'utilisateur appartient à une des équipes du match
@@ -60,7 +61,7 @@ export const createLiveEventAction = actionUser
     );
 
     if (!isUserInMatchTeam) {
-      throw new SafeError(
+      throw new SafeActionError(
         "Vous n'avez pas l'autorisation d'enregistrer des événements pour ce match"
       );
     }
@@ -74,7 +75,7 @@ export const createLiveEventAction = actionUser
     });
 
     if (!eventType) {
-      throw new SafeError("Type d'événement non trouvé");
+      throw new SafeActionError("Type d'événement non trouvé");
     }
 
     // Gérer la description de l'événement
@@ -129,7 +130,7 @@ export const createLiveEventAction = actionUser
     });
 
     if (!eventResult.success) {
-      throw new SafeError(eventResult.error || "Erreur lors de la création de l'événement");
+      throw new SafeActionError(eventResult.error || "Erreur lors de la création de l'événement");
     }
 
     // Traitement spécifique selon le type d'événement

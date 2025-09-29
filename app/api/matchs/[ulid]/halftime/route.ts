@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { ulid: string } }
+  { params }: { params: Promise<{ ulid: string }> }
 ) {
   try {
     const user = await getUser();
@@ -13,7 +13,7 @@ export async function GET(
       return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
     }
 
-    const { ulid } = params;
+    const { ulid } = await params;
 
     // Récupérer les informations du match
     const match = await prisma.match.findFirst({

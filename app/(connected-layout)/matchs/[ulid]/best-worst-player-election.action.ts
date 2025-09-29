@@ -1,6 +1,7 @@
 "use server";
 
-import { actionUser, SafeError } from "@/lib/safe-action-client";
+import { actionUser } from "@/lib/safe-action-client";
+import { SafeActionError } from "@/lib/errors";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
@@ -16,7 +17,7 @@ export const bestWorstPlayerElectionAction = actionUser
   .action(async ({ parsedInput: input, ctx: { user } }) => {
     // Vérifier les permissions : Admin ou Coach
     if (user.job !== "Admin" && user.job !== "Coach") {
-      throw new SafeError("Seuls les administrateurs et entraîneurs peuvent effectuer cette élection");
+      throw new SafeActionError("Seuls les administrateurs et entraîneurs peuvent effectuer cette élection");
     }
 
     // Récupérer les détails du match
@@ -44,17 +45,17 @@ export const bestWorstPlayerElectionAction = actionUser
     });
 
     if (!match) {
-      throw new SafeError("Match non trouvé");
+      throw new SafeActionError("Match non trouvé");
     }
 
     // Vérifier que le match est terminé et que les stats ne sont pas encore envoyées
     if (match.status !== "Finish" || match.endingStatus !== "Stat_Not_Sending") {
-      throw new SafeError("Cette élection n'est possible que pour les matchs terminés en attente de validation des statistiques");
+      throw new SafeActionError("Cette élection n'est possible que pour les matchs terminés en attente de validation des statistiques");
     }
 
     // Vérifier si les élections ont déjà été faites
     if (match.bestPlayer || match.worstPlayer) {
-      throw new SafeError("Les élections ont déjà été effectuées pour ce match");
+      throw new SafeActionError("Les élections ont déjà été effectuées pour ce match");
     }
 
     // Vérifier que l'utilisateur appartient à une des équipes du match ou est admin global
@@ -78,7 +79,7 @@ export const bestWorstPlayerElectionAction = actionUser
       const hasAccess = userClubIds.some(clubId => matchClubIds.includes(clubId));
 
       if (!hasAccess) {
-        throw new SafeError("Vous n'avez pas l'autorisation d'effectuer cette élection pour ce match");
+        throw new SafeActionError("Vous n'avez pas l'autorisation d'effectuer cette élection pour ce match");
       }
     }
 
@@ -93,7 +94,7 @@ export const bestWorstPlayerElectionAction = actionUser
     });
 
     if (lineup.length !== 2) {
-      throw new SafeError("Les joueurs sélectionnés doivent faire partie de la feuille de match");
+      throw new SafeActionError("Les joueurs sélectionnés doivent faire partie de la feuille de match");
     }
 
     // Vérifier que les joueurs appartiennent à l'équipe de l'utilisateur (sauf admin global)
@@ -135,7 +136,7 @@ export const bestWorstPlayerElectionAction = actionUser
       );
 
       if (!hasAccessToSelectedPlayers) {
-        throw new SafeError("Vous ne pouvez élire que des joueurs de votre club");
+        throw new SafeActionError("Vous ne pouvez élire que des joueurs de votre club");
       }
     }
 
@@ -207,6 +208,6 @@ export const bestWorstPlayerElectionAction = actionUser
       };
     } catch (error) {
       console.error("Erreur lors de l'enregistrement des élections:", error);
-      throw new SafeError("Erreur lors de l'enregistrement des élections");
+      throw new SafeActionError("Erreur lors de l'enregistrement des élections");
     }
   });
