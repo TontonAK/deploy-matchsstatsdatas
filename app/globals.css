@@ -1,8 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
-
 @theme {
   --color-gradient-start: oklch(0.2941 0.1061 264.95);
   --color-plaisir-primary: oklch(0.5026 0.2042 264.95);
