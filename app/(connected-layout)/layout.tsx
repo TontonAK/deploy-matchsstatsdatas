@@ -5,10 +5,8 @@ import { PropsWithChildren } from "react";
 export default function Layout(props: PropsWithChildren) {
   return (
     <SidebarProvider>
-      <SidebarInset>
-        <Header />
-        {props.children}
-      </SidebarInset>
+      <Header />
+      <SidebarInset>{props.children}</SidebarInset>
     </SidebarProvider>
   );
 }

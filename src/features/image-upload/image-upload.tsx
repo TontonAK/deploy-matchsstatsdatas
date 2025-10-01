@@ -54,6 +54,7 @@ export default function ImageUpload(props: {
       <div className="relative inline-flex">
         {/* Drop area */}
         <button
+          type="button"
           className="border-input hover:bg-accent/50 data-[dragging=true]:bg-accent/50 focus-visible:border-ring focus-visible:ring-ring/50 relative flex size-16 items-center justify-center overflow-hidden rounded-full border border-dashed transition-colors outline-none focus-visible:ring-[3px] has-disabled:pointer-events-none has-disabled:opacity-50 has-[img]:border-none"
           onClick={openFileDialog}
           onDragEnter={handleDragEnter}
@@ -80,6 +81,7 @@ export default function ImageUpload(props: {
         </button>
         {previewUrl && (
           <Button
+            type="button"
             onClick={() => {
               removeFile(files[0]?.id);
               props.onFileSelect?.(null);

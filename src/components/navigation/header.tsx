@@ -34,6 +34,7 @@ import {
   NavigationMenuTrigger,
 } from "../ui/navigation-menu";
 import { LogoutButton } from "./logout-button";
+import { MobileMenu } from "./mobile-menu";
 
 const dataHeader = [
   {
@@ -125,6 +126,24 @@ export default async function Header() {
 
   const job = UserRole[player.job as Role];
 
+  // Menu items for mobile sidebar
+  const mainMenuItems = dataHeader.filter((item) => !item.items);
+  const statsMenuItem = dataHeader.find(
+    (item) => item.title === "Statistiques"
+  );
+  const adminMenuItem = dataAdminHeader.find(
+    (item) => item.title === "Administration"
+  );
+
+  const userForNav = {
+    id: player.id,
+    name: player.name ?? "",
+    firstname: player.firstname,
+    lastname: player.lastname,
+    image: player.image,
+    job: job.name,
+  };
+
   return (
     <div className="fixed z-50 top-0 left-0 w-full bg-white font-montserrat">
       <header className="w-full border-b-4 border-plaisir-primary">
@@ -203,6 +222,17 @@ export default async function Header() {
             </DropdownMenu>
           </div>
         </nav>
+
+        {/* Mobile Menu */}
+        <MobileMenu
+          clubLogo={player.club.logo}
+          clubName={player.club.name}
+          mainMenuItems={mainMenuItems}
+          statsMenuItem={statsMenuItem}
+          adminMenuItem={adminMenuItem}
+          isAdmin={user.role === "admin"}
+          user={userForNav}
+        />
       </header>
     </div>
   );
@@ -243,29 +273,6 @@ const renderMenuItem = (item: MenuItem) => {
     </NavigationMenuItem>
   );
 };
-
-/*const renderMobileMenuItem = (item: MenuItem) => {
-  if (item.items) {
-    return (
-      <AccordionItem key={item.title} value={item.title} className="border-b-0">
-        <AccordionTrigger className="text-md py-0 font-semibold hover:no-underline">
-          {item.title}
-        </AccordionTrigger>
-        <AccordionContent className="mt-2">
-          {item.items.map((subItem) => (
-            <SubMenuLink key={subItem.title} item={subItem} />
-          ))}
-        </AccordionContent>
-      </AccordionItem>
-    );
-  }
-
-  return (
-    <a key={item.title} href={item.url} className="text-md font-semibold">
-      {item.title}
-    </a>
-  );
-};*/
 
 const SubMenuLink = ({ item }: { item: MenuItem }) => {
   return (
