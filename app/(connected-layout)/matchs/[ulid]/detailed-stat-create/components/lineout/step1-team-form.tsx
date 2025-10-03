@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Control, Controller } from "react-hook-form";
 
 import { Label } from "@/components/ui/label";
+import { RadioCard, RadioGroup } from "@/components/ui/radio-group";
 import {
   Select,
   SelectContent,
@@ -44,15 +45,15 @@ export function Step1TeamForm({
     selectedTeamId === matchData.homeTeam.id
       ? "home"
       : selectedTeamId === matchData.awayTeam.id
-      ? "away"
-      : null;
+        ? "away"
+        : null;
 
   const lineup =
     selectedTeam === "home"
       ? matchData.homeLineup
       : selectedTeam === "away"
-      ? matchData.awayLineup
-      : [];
+        ? matchData.awayLineup
+        : [];
 
   const hasLineup = lineup.length > 0;
 
@@ -64,29 +65,27 @@ export function Step1TeamForm({
       transition={{ duration: 0.3 }}
       className="space-y-6"
     >
-      <div className="space-y-2">
-        <Label htmlFor="teamId">Équipe ayant joué la touche</Label>
+      <div className="space-y-3">
+        <Label htmlFor="teamId">Pour qui ?</Label>
         <Controller
           name="teamId"
           control={control}
           render={({ field, fieldState: { error } }) => (
             <div>
-              <Select
+              <RadioGroup
                 value={field.value?.toString()}
                 onValueChange={(value) => field.onChange(parseInt(value))}
+                className="grid grid-cols-1 md:grid-cols-2 gap-3"
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="Sélectionner une équipe" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={matchData.homeTeam.id.toString()}>
-                    {matchData.homeTeam.club.name} (Domicile)
-                  </SelectItem>
-                  <SelectItem value={matchData.awayTeam.id.toString()}>
-                    {matchData.awayTeam.club.name} (Visiteur)
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+                <RadioCard
+                  value={matchData.homeTeam.id.toString()}
+                  text={`${matchData.homeTeam.club.name} (Domicile)`}
+                />
+                <RadioCard
+                  value={matchData.awayTeam.id.toString()}
+                  text={`${matchData.awayTeam.club.name} (Visiteur)`}
+                />
+              </RadioGroup>
               {showErrors && error && (
                 <p className="text-sm text-destructive mt-1">{error.message}</p>
               )}
@@ -96,7 +95,7 @@ export function Step1TeamForm({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="playerId">Joueur ayant lancé la touche</Label>
+        <Label htmlFor="playerId">Par qui ?</Label>
         <Controller
           name="playerId"
           control={control}

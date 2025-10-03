@@ -4,13 +4,7 @@ import { motion } from "framer-motion";
 import { Control, Controller } from "react-hook-form";
 
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { RadioCard, RadioGroup } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import { KickStatCreateFormSchema } from "@/schemas/kick-stat-create.schema";
 
@@ -31,25 +25,21 @@ export function KickStep3ResultForm({
       transition={{ duration: 0.3 }}
       className="space-y-6"
     >
-      <div className="space-y-2">
+      <div className="space-y-3">
         <Label htmlFor="deadBall">Ballon mort</Label>
         <Controller
           name="deadBall"
           control={control}
           render={({ field, fieldState: { error } }) => (
             <div>
-              <Select
+              <RadioGroup
                 value={field.value?.toString()}
                 onValueChange={(value) => field.onChange(value === "true")}
+                className="grid grid-cols-2 md:grid-cols-2 gap-3"
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="Le coup de pied a-t-il fini en ballon mort ?" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="true">Oui</SelectItem>
-                  <SelectItem value="false">Non</SelectItem>
-                </SelectContent>
-              </Select>
+                <RadioCard value="true" text="Oui" />
+                <RadioCard value="false" text="Non" />
+              </RadioGroup>
               {showErrors && error && (
                 <p className="text-sm text-destructive mt-1">{error.message}</p>
               )}
@@ -58,25 +48,21 @@ export function KickStep3ResultForm({
         />
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-3">
         <Label htmlFor="success">Résultat du coup de pied</Label>
         <Controller
           name="success"
           control={control}
           render={({ field, fieldState: { error } }) => (
             <div>
-              <Select
+              <RadioGroup
                 value={field.value?.toString()}
                 onValueChange={(value) => field.onChange(value === "true")}
+                className="grid grid-cols-2 md:grid-cols-2 gap-3"
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="Le coup de pied est-il réussi ?" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="true">Réussi</SelectItem>
-                  <SelectItem value="false">Manqué</SelectItem>
-                </SelectContent>
-              </Select>
+                <RadioCard value="true" text="Réussi" />
+                <RadioCard value="false" text="Manqué" />
+              </RadioGroup>
               {showErrors && error && (
                 <p className="text-sm text-destructive mt-1">{error.message}</p>
               )}
@@ -87,8 +73,10 @@ export function KickStep3ResultForm({
 
       <div className="space-y-2">
         <Label htmlFor="comment">
-          Commentaire 
-          <span className="text-muted-foreground text-sm ml-1">(optionnel)</span>
+          Commentaire
+          <span className="text-muted-foreground text-sm ml-1">
+            (optionnel)
+          </span>
         </Label>
         <Controller
           name="comment"
@@ -112,11 +100,11 @@ export function KickStep3ResultForm({
         />
       </div>
 
-      <div className="p-4 bg-muted rounded-md">
+      <div className="p-4 bg-muted rounded-md mb-5">
         <p className="text-sm text-muted-foreground">
-          <strong>Information :</strong> Si le coup de pied est réussi et qu'il s'agit 
-          d'un drop, d'une transformation ou d'une pénalité tentée, la statistique 
-          correspondante "réussie" sera automatiquement mise à jour.
+          <strong>Information :</strong> Si le coup de pied est réussi et qu'il
+          s'agit d'un drop, d'une transformation ou d'une pénalité tentée, la
+          statistique correspondante "réussie" sera automatiquement mise à jour.
         </p>
       </div>
     </motion.div>

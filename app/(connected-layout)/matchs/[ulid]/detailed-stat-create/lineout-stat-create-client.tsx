@@ -137,9 +137,10 @@ export function LineoutStatCreateClient({
       const result = await createLineoutStatAction(data);
 
       if (result?.serverError) {
-        const errorMessage = typeof result.serverError === 'string'
-          ? result.serverError
-          : "Erreur lors de la création de la statistique";
+        const errorMessage =
+          typeof result.serverError === "string"
+            ? result.serverError
+            : "Erreur lors de la création de la statistique";
         toast.error(errorMessage);
       } else if (result?.data) {
         toast.success("Statistique de touche créée avec succès !");
@@ -218,7 +219,18 @@ export function LineoutStatCreateClient({
             </CardTitle>
           </CardHeader>
 
-          <form onSubmit={handleSubmit(onSubmit, onSubmitError)}>
+          <form
+            onSubmit={handleSubmit(onSubmit, onSubmitError)}
+            onKeyDown={(e) => {
+              if (
+                e.key === "Enter" &&
+                e.target instanceof HTMLElement &&
+                e.target.tagName !== "BUTTON"
+              ) {
+                e.preventDefault();
+              }
+            }}
+          >
             <CardContent className="min-h-[300px]">
               {renderCurrentStepForm()}
             </CardContent>

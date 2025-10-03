@@ -4,13 +4,7 @@ import { motion } from "framer-motion";
 import { Control, Controller } from "react-hook-form";
 
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { RadioCard, RadioGroup } from "@/components/ui/radio-group";
 import { GroundArea } from "@/generated/prisma";
 import { GroundAreaName } from "@/lib/utils";
 import { KickStatCreateFormSchema } from "@/schemas/kick-stat-create.schema";
@@ -49,28 +43,26 @@ export function KickStep2AreaForm({
       transition={{ duration: 0.3 }}
       className="space-y-6"
     >
-      <div className="space-y-2">
+      <div className="space-y-3">
         <Label htmlFor="startAreaKick">Zone de frappe</Label>
         <Controller
           name="startAreaKick"
           control={control}
           render={({ field, fieldState: { error } }) => (
             <div>
-              <Select
+              <RadioGroup
                 value={field.value}
                 onValueChange={(value) => field.onChange(value as GroundArea)}
+                className="grid grid-cols-2 md:grid-cols-2 gap-3"
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="Sélectionner la zone de frappe" />
-                </SelectTrigger>
-                <SelectContent>
-                  {groundAreaOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                {groundAreaOptions.map((option) => (
+                  <RadioCard
+                    key={option.value}
+                    value={option.value}
+                    text={option.label}
+                  />
+                ))}
+              </RadioGroup>
               {showErrors && error && (
                 <p className="text-sm text-destructive mt-1">{error.message}</p>
               )}
@@ -80,29 +72,27 @@ export function KickStep2AreaForm({
       </div>
 
       {shouldShowEndArea && (
-        <div className="space-y-2">
+        <div className="space-y-3 mb-5">
           <Label htmlFor="endAreaKick">Zone de chute du ballon</Label>
           <Controller
             name="endAreaKick"
             control={control}
             render={({ field, fieldState: { error } }) => (
               <div>
-                <Select
+                <RadioGroup
                   value={field.value || ""}
                   onValueChange={(value) => field.onChange(value as GroundArea)}
+                  className="grid grid-cols-2 md:grid-cols-2 gap-3"
                 >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Sélectionner la zone de chute (optionnel)" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">Aucune zone spécifique</SelectItem>
-                    {groundAreaOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  <RadioCard value="none" text="Aucune zone spécifique" />
+                  {groundAreaOptions.map((option) => (
+                    <RadioCard
+                      key={option.value}
+                      value={option.value}
+                      text={option.label}
+                    />
+                  ))}
+                </RadioGroup>
                 {showErrors && error && (
                   <p className="text-sm text-destructive mt-1">
                     {error.message}

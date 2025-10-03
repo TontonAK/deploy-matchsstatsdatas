@@ -75,9 +75,10 @@ export const GroundAreaName: Record<GroundArea, string> = {
 };
 
 export const AreaLineoutName: Record<CatchBlockAreaLineout, string> = {
-  Block_Area_1: "Zone de saut 1 (devant)",
-  Block_Area_2: "Zone de saut 2 (milieu)",
-  Block_Area_3: "Zone de saut 3 (fond)",
+  Block_Area_1: "Bloc 1 (devant)",
+  Block_Area_2: "Bloc 2 (milieu)",
+  Block_Area_3: "Bloc 3 (fond)",
+  Outside_Block: "Hors des 15",
 };
 
 export interface TileMatchProps {

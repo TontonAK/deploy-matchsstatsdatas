@@ -11,9 +11,9 @@ export const metadata: Metadata = {
 export default async function Dashboard() {
   return (
     <div className="pt-15 font-montserrat font-bold space-y-6">
-      <div className="flex gap-6 w-full py-4 px-6 bg-gradient-to-br from-plaisir-primary to-plaisir-secondary rounded-xl shadow-lg border border-yellow-600">
+      <div className="flex flex-col lg:flex-row gap-6 w-full py-4 px-6 bg-gradient-to-br from-plaisir-primary to-plaisir-secondary rounded-xl shadow-lg border border-yellow-600">
         {/* Prochain match */}
-        <div className="flex flex-col items-center justify-between bg-white/80 rounded-lg shadow-md px-6 py-4 grow">
+        <div className="flex flex-col items-center justify-between bg-white/80 rounded-lg shadow-md p-2 md:px-6 md:py-4 grow">
           <div className="flex justify-center gap-2">
             <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded">
               Prochain match

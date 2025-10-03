@@ -47,7 +47,7 @@ export function MobileMenu({
   if (isMobile) {
     return (
       <>
-        <nav className="flex justify-between items-center lg:hidden mx-4 py-3">
+        <nav className="flex justify-between items-center md:hidden mx-4 py-3">
           <div className="flex items-center gap-2">
             <Image
               src={clubLogo ?? "/default-logo.png"}

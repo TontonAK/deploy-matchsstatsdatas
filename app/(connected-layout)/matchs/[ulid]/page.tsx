@@ -1,8 +1,8 @@
-import HeaderMatch from "@/components/matchs/header-match";
-import { MatchStats } from "@/components/matchs/match-stats";
-import { AdvanceLineoutStatCard } from "@/components/matchs/advance-lineout-stat-card";
 import { AdvanceKickStatCard } from "@/components/matchs/advance-kick-stat-card";
+import { AdvanceLineoutStatCard } from "@/components/matchs/advance-lineout-stat-card";
+import HeaderMatch from "@/components/matchs/header-match";
 import MatchLineup from "@/components/matchs/match-lineup";
+import { MatchStats } from "@/components/matchs/match-stats";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getMatchDetails } from "@/database/matchs/get-matchs";
 import { getUser } from "@/lib/auth-session";
@@ -66,20 +66,22 @@ export default async function DetailsMatchPage(props: PageProps) {
     <main className="font-montserrat font-bold">
       <HeaderMatch matchData={matchStats} />
       <Tabs
-        className="flex w-full justify-center relative"
+        className="flex w-full relative"
         defaultValue="stats"
       >
-        <TabsList className="rounded-none bg-transparent h-auto flex pt-1 overflow-x-auto text-sm md:justify-center lg:text-base border-b border-solid border-gray-200 w-full">
-          {allTabs.map((item) => (
-            <TabsTrigger
-              key={item.action}
-              className="flex px-4 py-4 rounded-none font-semibold uppercase text-black border-solid border-plaisir-primary hover:border-b-2 whitespace-nowrap data-[state=active]:border-b-2 data-[state=active]:font-extrabold"
-              value={item.action}
-            >
-              {item.menu}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+        <div className="w-full overflow-x-auto scrollbar-hide border-b border-solid border-gray-200">
+          <TabsList className="rounded-none bg-transparent h-auto flex pt-1 text-sm lg:text-base w-fit min-w-full lg:justify-center">
+            {allTabs.map((item) => (
+              <TabsTrigger
+                key={item.action}
+                className="flex px-3 md:px-4 py-4 rounded-none font-semibold uppercase text-black border-solid border-plaisir-primary hover:border-b-2 whitespace-nowrap data-[state=active]:border-b-2 data-[state=active]:font-extrabold flex-shrink-0"
+                value={item.action}
+              >
+                {item.menu}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </div>
         <TabsContent value="teams">
           <MatchLineup matchUlid={params.ulid} userClubId={user?.clubId} />
         </TabsContent>

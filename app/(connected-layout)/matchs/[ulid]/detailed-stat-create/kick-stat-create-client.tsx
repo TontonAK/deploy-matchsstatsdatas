@@ -225,7 +225,14 @@ export function KickStatCreateClient({
             </CardTitle>
           </CardHeader>
 
-          <form onSubmit={handleSubmit(onSubmit, onSubmitError)}>
+          <form
+            onSubmit={handleSubmit(onSubmit, onSubmitError)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && e.target instanceof HTMLElement && e.target.tagName !== 'BUTTON') {
+                e.preventDefault();
+              }
+            }}
+          >
             <CardContent className="min-h-[300px]">
               {renderCurrentStepForm()}
             </CardContent>

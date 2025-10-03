@@ -26,15 +26,15 @@ export const DashboardNextMatch = async () => {
                 height={56}
                 className="object-contain"
               />
-              <span className="text-lg font-bold text-gray-800 uppercase">
+              <span className="text-sm md:text-lg font-bold text-gray-800 uppercase">
                 {nextMatch.homeTeam?.club?.name || "Équipe domicile"}
               </span>
             </div>
-            <span className="absolute left-1/2 -translate-x-1/2 text-2xl font-bold text-gray-600 z-10">
+            <span className="text-lg md:text-2xl font-bold text-gray-600 z-10">
               VS
             </span>
             <div className="flex items-center gap-4 flex-1 justify-center">
-              <span className="text-lg font-bold text-gray-800 uppercase">
+              <span className="text-sm md:text-lg font-bold text-gray-800 uppercase">
                 {nextMatch.awayTeam?.club?.name || "Équipe extérieure"}
               </span>
               <Image
@@ -49,7 +49,7 @@ export const DashboardNextMatch = async () => {
             </div>
           </div>
           <div className="mt-2 text-center">
-            <div className="text-base text-gray-500">
+            <div className="text-sm md:text-base text-gray-500">
               {nextMatch.seasonLeagueMatch?.seasonLeague?.league?.name
                 ? `${nextMatch.seasonLeagueMatch.seasonLeague.league.name}${
                     nextMatch.seasonLeagueMatch.seasonLeague.leaguePool?.pool
@@ -62,7 +62,7 @@ export const DashboardNextMatch = async () => {
                       ?.name || "Match"
                   }`}
             </div>
-            <div className="text-sm text-gray-500">
+            <div className="text-xs md:text-sm text-gray-500">
               {nextMatch.schedule
                 ? (() => {
                     const dateStr = new Date(nextMatch.schedule).toLocaleString(

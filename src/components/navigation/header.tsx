@@ -148,7 +148,7 @@ export default async function Header() {
     <div className="fixed z-50 top-0 left-0 w-full bg-white font-montserrat">
       <header className="w-full border-b-4 border-plaisir-primary">
         {/* Desktop Menu */}
-        <nav className="hidden justify-between lg:flex mx-10">
+        <nav className="hidden justify-between md:flex mx-10">
           <div className="flex items-center gap-6">
             {/* Logo */}
             <div className="flex items-center gap-2">

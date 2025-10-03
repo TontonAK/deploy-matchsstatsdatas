@@ -497,4 +497,5 @@ enum CatchBlockAreaLineout {
   Block_Area_1
   Block_Area_2
   Block_Area_3
+  Outside_Block
 }

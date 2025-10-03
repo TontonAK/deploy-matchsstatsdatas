@@ -218,7 +218,7 @@ const TeamStatsSection = async () => {
 };
 
 const DashboardResumeStatsSkeleton = () => (
-  <div className="flex gap-6 w-full py-4 px-6">
+  <div className="flex flex-col lg:flex-row gap-6 w-full py-4 px-6">
     {/* Section 1 */}
     <div className="flex flex-col items-center space-y-3 px-4 flex-1">
       <Skeleton className="h-4 w-20" />
@@ -230,7 +230,8 @@ const DashboardResumeStatsSkeleton = () => (
       </div>
     </div>
 
-    <Separator orientation="vertical" className="h-40" />
+    <Separator orientation="horizontal" className="lg:hidden" />
+    <Separator orientation="vertical" className="hidden lg:block h-40" />
 
     {/* Section 2 */}
     <div className="flex flex-col space-y-4 px-4 flex-1">
@@ -252,7 +253,8 @@ const DashboardResumeStatsSkeleton = () => (
       </div>
     </div>
 
-    <Separator orientation="vertical" className="h-40" />
+    <Separator orientation="horizontal" className="lg:hidden" />
+    <Separator orientation="vertical" className="hidden lg:block h-40" />
 
     {/* Section 3 */}
     <div className="flex flex-col space-y-4 px-4 flex-1">
@@ -272,20 +274,22 @@ export const DashboardResumeStats = async () => {
   return (
     <div className="flex gap-6 w-full py-4 px-6 bg-white rounded-xl shadow-lg border border-gray-200">
       <Suspense fallback={<DashboardResumeStatsSkeleton />}>
-        <div className="flex flex-row w-full h-auto">
+        <div className="flex flex-col lg:flex-row w-full h-auto gap-6 lg:gap-0">
           {/* Section 1: Taux de victoire */}
           <div className="flex-1 flex flex-col">
             <WinRateSection />
           </div>
 
-          <Separator orientation="vertical" className="self-stretch" />
+          <Separator orientation="horizontal" className="lg:hidden" />
+          <Separator orientation="vertical" className="hidden lg:block self-stretch" />
 
           {/* Section 2: Statistiques joueurs */}
           <div className="flex-1 flex flex-col">
             <PlayerStatsSection />
           </div>
 
-          <Separator orientation="vertical" className="self-stretch" />
+          <Separator orientation="horizontal" className="lg:hidden" />
+          <Separator orientation="vertical" className="hidden lg:block self-stretch" />
 
           {/* Section 3: Statistiques équipe */}
           <div className="flex-1 flex flex-col">

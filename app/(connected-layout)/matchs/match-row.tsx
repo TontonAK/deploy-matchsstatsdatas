@@ -14,7 +14,7 @@ export const MatchRow = ({ match }: MatchClientProps) => {
     <Link href={`/matchs/${match.ulid}`}>
       <div className="mb-10">
         <div className="relative rounded-md border border-gray-400">
-          <div className="flex flex-row items-center justify-center py-4 gap-4">
+          <div className="flex flex-row text-xs md:text-base items-center justify-center py-4 gap-4">
             <div className="flex items-center gap-2">
               <Shirt className="size-4" />
               <span>
@@ -44,7 +44,7 @@ export const MatchRow = ({ match }: MatchClientProps) => {
           <div className="flex flex-row items-center justify-center">
             <Separator className={cn("max-w-9/10")} />
           </div>
-          <div className="py-4 flex items-center gap-4 w-full relative">
+          <div className="py-4 px-2 md:px-0 flex items-center gap-4 w-full relative">
             <div className="flex items-center justify-center gap-4 flex-1">
               <Image
                 src={match.homeTeam?.club?.logo || "/logo.png"}
@@ -55,11 +55,11 @@ export const MatchRow = ({ match }: MatchClientProps) => {
                 height={32}
                 className="object-contain"
               />
-              <span className="text-lg font-bold text-gray-800 uppercase">
+              <span className="text-sm md:text-lgtext-sm md:text-lg font-bold text-gray-800 uppercase">
                 {match.homeTeam?.club?.name || "Équipe domicile"}
               </span>
             </div>
-            <div className="flex items-center absolute left-1/2 -translate-x-1/2 z-10 text-2xl font-bold text-gray-600 gap-4">
+            <div className="flex items-center text-lg md:text-2xl font-bold text-gray-600 gap-4">
               <span className="min-w-[32px] text-center">
                 {match.scoreHomeTeam !== undefined &&
                 match.scoreHomeTeam !== null
@@ -77,7 +77,7 @@ export const MatchRow = ({ match }: MatchClientProps) => {
               </span>
             </div>
             <div className="flex items-center gap-4 flex-1 justify-center">
-              <span className="text-lg font-bold text-gray-800 uppercase">
+              <span className="text-sm md:text-lg font-bold text-gray-800 uppercase">
                 {match.awayTeam?.club?.name || "Équipe extérieure"}
               </span>
               <Image

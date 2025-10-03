@@ -4,13 +4,7 @@ import { motion } from "framer-motion";
 import { Control, Controller, useWatch } from "react-hook-form";
 
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { RadioCard, RadioGroup } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import { CatchBlockAreaLineout } from "@/generated/prisma";
 import { AreaLineoutName } from "@/lib/utils";
@@ -21,7 +15,10 @@ interface Step4ResultFormProps {
   showErrors?: boolean;
 }
 
-export function Step4ResultForm({ control, showErrors = false }: Step4ResultFormProps) {
+export function Step4ResultForm({
+  control,
+  showErrors = false,
+}: Step4ResultFormProps) {
   // Observer si la touche est un échec pour afficher le textarea
   const success = useWatch({
     control,
@@ -38,30 +35,24 @@ export function Step4ResultForm({ control, showErrors = false }: Step4ResultForm
       transition={{ duration: 0.3 }}
       className="space-y-6"
     >
-      <div className="space-y-2">
+      <div className="space-y-3">
         <Label htmlFor="catchBlockArea">Zone de saut</Label>
         <Controller
           name="catchBlockArea"
           control={control}
           render={({ field, fieldState: { error } }) => (
             <div>
-              <Select
+              <RadioGroup
                 value={field.value}
                 onValueChange={(value) =>
                   field.onChange(value as CatchBlockAreaLineout)
                 }
+                className="grid grid-cols-1 md:grid-cols-2 gap-3"
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="Sélectionner la zone de saut" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(AreaLineoutName).map(([key, value]) => (
-                    <SelectItem key={key} value={key}>
-                      {value}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                {Object.entries(AreaLineoutName).map(([key, value]) => (
+                  <RadioCard key={key} value={key} text={value} />
+                ))}
+              </RadioGroup>
               {showErrors && error && (
                 <p className="text-sm text-destructive mt-1">{error.message}</p>
               )}
@@ -73,25 +64,21 @@ export function Step4ResultForm({ control, showErrors = false }: Step4ResultForm
         </p>
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-3 mb-5">
         <Label htmlFor="success">Touche réussie ?</Label>
         <Controller
           name="success"
           control={control}
           render={({ field, fieldState: { error } }) => (
             <div>
-              <Select
+              <RadioGroup
                 value={field.value !== undefined ? String(field.value) : ""}
                 onValueChange={(value) => field.onChange(value === "true")}
+                className="grid grid-cols-2 md:grid-cols-2 gap-3"
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="Sélectionner le résultat" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="true">Oui</SelectItem>
-                  <SelectItem value="false">Non</SelectItem>
-                </SelectContent>
-              </Select>
+                <RadioCard value="true" text="Oui" />
+                <RadioCard value="false" text="Non" />
+              </RadioGroup>
               {showErrors && error && (
                 <p className="text-sm text-destructive mt-1">{error.message}</p>
               )}
@@ -106,7 +93,7 @@ export function Step4ResultForm({ control, showErrors = false }: Step4ResultForm
           animate={{ opacity: 1, height: "auto" }}
           exit={{ opacity: 0, height: 0 }}
           transition={{ duration: 0.2 }}
-          className="space-y-2 pb-4"
+          className="space-y-2 mb-5"
         >
           <Label htmlFor="failReason">Raison de l'échec (facultatif)</Label>
           <Controller

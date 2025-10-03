@@ -1,10 +1,11 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Control, Controller } from "react-hook-form";
 import { useEffect, useState } from "react";
+import { Control, Controller } from "react-hook-form";
 
 import { Label } from "@/components/ui/label";
+import { RadioCard, RadioGroup } from "@/components/ui/radio-group";
 import {
   Select,
   SelectContent,
@@ -12,9 +13,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { StatType } from "@/generated/prisma";
 import { KickStatCreateFormSchema } from "@/schemas/kick-stat-create.schema";
 import { getKickStatTypesAction } from "../../get-kick-stat-types.action";
-import { StatType } from "@/generated/prisma";
 
 interface KickStep1TypeFormProps {
   control: Control<KickStatCreateFormSchema>;
@@ -34,7 +35,7 @@ interface KickStep1TypeFormProps {
   };
   selectedTeamId?: number;
   showErrors?: boolean;
-  onStatTypesLoaded?: (statTypes: {id: number; name: string}[]) => void;
+  onStatTypesLoaded?: (statTypes: { id: number; name: string }[]) => void;
 }
 
 export function KickStep1TypeForm({
@@ -52,11 +53,13 @@ export function KickStep1TypeForm({
     const loadStatTypes = async () => {
       try {
         const result = await getKickStatTypesAction();
-        
+
         if (result?.data?.success && result.data.statTypes) {
           setStatTypes(result.data.statTypes);
           // Appeler le callback avec les données simplifiées
-          onStatTypesLoaded?.(result.data.statTypes.map(st => ({ id: st.id, name: st.name })));
+          onStatTypesLoaded?.(
+            result.data.statTypes.map((st) => ({ id: st.id, name: st.name }))
+          );
         }
       } catch (error) {
         console.error("Error loading stat types:", error);
@@ -73,15 +76,15 @@ export function KickStep1TypeForm({
     selectedTeamId === matchData.homeTeam.id
       ? "home"
       : selectedTeamId === matchData.awayTeam.id
-      ? "away"
-      : null;
+        ? "away"
+        : null;
 
   const lineup =
     selectedTeam === "home"
       ? matchData.homeLineup
       : selectedTeam === "away"
-      ? matchData.awayLineup
-      : [];
+        ? matchData.awayLineup
+        : [];
 
   const hasLineup = lineup.length > 0;
 
@@ -93,35 +96,32 @@ export function KickStep1TypeForm({
       transition={{ duration: 0.3 }}
       className="space-y-6"
     >
-      <div className="space-y-2">
+      <div className="space-y-3">
         <Label htmlFor="statTypeId">Type de coup de pied</Label>
         <Controller
           name="statTypeId"
           control={control}
           render={({ field, fieldState: { error } }) => (
             <div>
-              <Select
-                value={field.value?.toString()}
-                onValueChange={(value) => field.onChange(parseInt(value))}
-                disabled={isLoading}
-              >
-                <SelectTrigger>
-                  <SelectValue 
-                    placeholder={
-                      isLoading 
-                        ? "Chargement des types..." 
-                        : "Sélectionner un type de coup de pied"
-                    } 
-                  />
-                </SelectTrigger>
-                <SelectContent>
+              {isLoading ? (
+                <p className="text-sm text-muted-foreground">
+                  Chargement des types...
+                </p>
+              ) : (
+                <RadioGroup
+                  value={field.value?.toString()}
+                  onValueChange={(value) => field.onChange(parseInt(value))}
+                  className="grid grid-cols-2 md:grid-cols-2 gap-3"
+                >
                   {statTypes.map((statType) => (
-                    <SelectItem key={statType.id} value={statType.id.toString()}>
-                      {statType.name}
-                    </SelectItem>
+                    <RadioCard
+                      key={statType.id}
+                      value={statType.id.toString()}
+                      text={statType.name}
+                    />
                   ))}
-                </SelectContent>
-              </Select>
+                </RadioGroup>
+              )}
               {showErrors && error && (
                 <p className="text-sm text-destructive mt-1">{error.message}</p>
               )}
@@ -130,29 +130,27 @@ export function KickStep1TypeForm({
         />
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-3">
         <Label htmlFor="teamId">Équipe ayant effectué le coup de pied</Label>
         <Controller
           name="teamId"
           control={control}
           render={({ field, fieldState: { error } }) => (
             <div>
-              <Select
+              <RadioGroup
                 value={field.value?.toString()}
                 onValueChange={(value) => field.onChange(parseInt(value))}
+                className="grid grid-cols-2 md:grid-cols-2 gap-3"
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="Sélectionner une équipe" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={matchData.homeTeam.id.toString()}>
-                    {matchData.homeTeam.club.name} (Domicile)
-                  </SelectItem>
-                  <SelectItem value={matchData.awayTeam.id.toString()}>
-                    {matchData.awayTeam.club.name} (Visiteur)
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+                <RadioCard
+                  value={matchData.homeTeam.id.toString()}
+                  text={`${matchData.homeTeam.club.name} (Domicile)`}
+                />
+                <RadioCard
+                  value={matchData.awayTeam.id.toString()}
+                  text={`${matchData.awayTeam.club.name} (Visiteur)`}
+                />
+              </RadioGroup>
               {showErrors && error && (
                 <p className="text-sm text-destructive mt-1">{error.message}</p>
               )}
@@ -161,7 +159,7 @@ export function KickStep1TypeForm({
         />
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-2 mb-5">
         <Label htmlFor="playerId">Joueur ayant effectué le coup de pied</Label>
         <Controller
           name="playerId"
