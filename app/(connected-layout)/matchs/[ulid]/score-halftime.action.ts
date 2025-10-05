@@ -1,23 +1,29 @@
 "use server";
 
-import { actionUser } from "@/lib/safe-action-client";
-import { SafeActionError } from "@/lib/errors";
 import { createOrUpdateHalftimeScore } from "@/database/matchs/create-or-update-score-halftime";
+import { SafeActionError } from "@/lib/errors";
 import { prisma } from "@/lib/prisma";
+import { actionUser } from "@/lib/safe-action-client";
 import { z } from "zod";
 
 const scoreHalftimeSchema = z.object({
   matchId: z.number().positive("L'ID du match est requis"),
-  homeScore: z.number().min(0, "Le score de l'équipe à domicile doit être positif ou nul"),
-  awayScore: z.number().min(0, "Le score de l'équipe à l'extérieur doit être positif ou nul"),
+  homeScore: z
+    .number()
+    .min(0, "Le score de l'équipe à domicile doit être positif ou nul"),
+  awayScore: z
+    .number()
+    .min(0, "Le score de l'équipe à l'extérieur doit être positif ou nul"),
 });
 
 export const scoreHalftimeAction = actionUser
   .inputSchema(scoreHalftimeSchema)
   .action(async ({ parsedInput: input, ctx: { user } }) => {
     // Vérifier les permissions : Admin ou Coach
-    if (user.job !== "Admin" && user.job !== "Coach") {
-      throw new SafeActionError("Seuls les administrateurs et entraîneurs peuvent modifier le score à la mi-temps");
+    if (user.role !== "admin") {
+      throw new SafeActionError(
+        "Seuls les administrateurs et entraîneurs peuvent modifier le score à la mi-temps"
+      );
     }
 
     // Récupérer les détails du match
@@ -82,13 +88,17 @@ export const scoreHalftimeAction = actionUser
         },
       });
 
-      const userClubIds = userTeams.map(team => team.team.clubId);
+      const userClubIds = userTeams.map((team) => team.team.clubId);
       const matchClubIds = [match.homeTeam.clubId, match.awayTeam.clubId];
 
-      const hasAccess = userClubIds.some(clubId => matchClubIds.includes(clubId));
+      const hasAccess = userClubIds.some((clubId) =>
+        matchClubIds.includes(clubId)
+      );
 
       if (!hasAccess) {
-        throw new SafeActionError("Vous n'avez pas l'autorisation de modifier le score à la mi-temps pour ce match");
+        throw new SafeActionError(
+          "Vous n'avez pas l'autorisation de modifier le score à la mi-temps pour ce match"
+        );
       }
     }
 
@@ -101,7 +111,10 @@ export const scoreHalftimeAction = actionUser
       });
 
       if (!result.success) {
-        throw new SafeActionError(result.error || "Erreur lors de l'enregistrement du score à la mi-temps");
+        throw new SafeActionError(
+          result.error ||
+            "Erreur lors de l'enregistrement du score à la mi-temps"
+        );
       }
 
       return {
@@ -125,10 +138,15 @@ export const scoreHalftimeAction = actionUser
         },
       };
     } catch (error) {
-      console.error("Erreur lors de l'enregistrement du score à la mi-temps:", error);
+      console.error(
+        "Erreur lors de l'enregistrement du score à la mi-temps:",
+        error
+      );
       if (error instanceof SafeActionError) {
         throw error;
       }
-      throw new SafeActionError("Erreur lors de l'enregistrement du score à la mi-temps");
+      throw new SafeActionError(
+        "Erreur lors de l'enregistrement du score à la mi-temps"
+      );
     }
   });

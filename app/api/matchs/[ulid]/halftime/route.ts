@@ -63,9 +63,12 @@ export async function GET(
     }
 
     // Vérifier les permissions : Admin ou Coach
-    if (user.job !== "Admin" && user.job !== "Coach") {
+    if (user.role !== "admin") {
       return NextResponse.json(
-        { error: "Seuls les administrateurs et entraîneurs peuvent accéder à cette fonction" },
+        {
+          error:
+            "Seuls les administrateurs et entraîneurs peuvent accéder à cette fonction",
+        },
         { status: 403 }
       );
     }

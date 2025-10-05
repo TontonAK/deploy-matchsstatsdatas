@@ -131,9 +131,10 @@ export function ScoreFulltimeAction({ ulid }: ScoreFulltimeActionProps) {
         // Rafraîchir la page pour mettre à jour l'affichage
         window.location.reload();
       } else {
-        const errorMessage = typeof result?.serverError === 'string'
-          ? result.serverError
-          : "Erreur lors de l'enregistrement";
+        const errorMessage =
+          typeof result?.serverError === "string"
+            ? result.serverError
+            : "Erreur lors de l'enregistrement";
         toast.error(errorMessage);
       }
     } catch (error) {
@@ -208,8 +209,7 @@ export function ScoreFulltimeAction({ ulid }: ScoreFulltimeActionProps) {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        Score domicile
-                        <span className="block text-sm text-muted-foreground font-normal">
+                        <span className="block text-xs text-muted-foreground font-normal">
                           {fulltimeData.teams.home.clubName}
                         </span>
                       </FormLabel>
@@ -233,8 +233,7 @@ export function ScoreFulltimeAction({ ulid }: ScoreFulltimeActionProps) {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        Score visiteur
-                        <span className="block text-sm text-muted-foreground font-normal">
+                        <span className="block text-xs text-muted-foreground font-normal">
                           {fulltimeData.teams.away.clubName}
                         </span>
                       </FormLabel>
@@ -259,10 +258,7 @@ export function ScoreFulltimeAction({ ulid }: ScoreFulltimeActionProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Résultat du match</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Sélectionnez le résultat" />
@@ -295,7 +291,9 @@ export function ScoreFulltimeAction({ ulid }: ScoreFulltimeActionProps) {
                         {fulltimeData.existingScore.homeScore}
                       </div>
                     </div>
-                    <div className="text-lg font-bold text-muted-foreground">-</div>
+                    <div className="text-lg font-bold text-muted-foreground">
+                      -
+                    </div>
                     <div className="text-center">
                       <div className="font-semibold">
                         {fulltimeData.teams.away.clubName}
@@ -326,8 +324,8 @@ export function ScoreFulltimeAction({ ulid }: ScoreFulltimeActionProps) {
                   {isSubmitting
                     ? "Enregistrement..."
                     : fulltimeData.existingScore
-                    ? "Modifier le score"
-                    : "Enregistrer le score"}
+                      ? "Modifier le score"
+                      : "Enregistrer le score"}
                 </Button>
               </DialogFooter>
             </form>

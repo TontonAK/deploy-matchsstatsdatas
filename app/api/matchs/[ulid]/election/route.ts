@@ -98,12 +98,12 @@ export async function GET(
       return NextResponse.json({ error: "Match non trouvé" }, { status: 404 });
     }
 
-    /*if (user.job !== "Admin" && user.job !== "Coach") {
+    if (user.role !== "admin") {
       return NextResponse.json(
         { error: "Permissions insuffisantes" },
         { status: 403 }
       );
-    }*/
+    }
 
     // Si l'utilisateur n'est pas admin global, vérifier qu'il appartient à l'une des équipes du match
     if (user.role !== "admin") {

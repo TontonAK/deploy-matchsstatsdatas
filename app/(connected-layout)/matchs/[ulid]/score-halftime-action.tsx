@@ -116,9 +116,10 @@ export function ScoreHalftimeAction({ ulid }: ScoreHalftimeActionProps) {
         // Rafraîchir la page pour mettre à jour l'affichage
         window.location.reload();
       } else {
-        const errorMessage = typeof result?.serverError === 'string'
-          ? result.serverError
-          : "Erreur lors de l'enregistrement";
+        const errorMessage =
+          typeof result?.serverError === "string"
+            ? result.serverError
+            : "Erreur lors de l'enregistrement";
         toast.error(errorMessage);
       }
     } catch (error) {
@@ -159,8 +160,7 @@ export function ScoreHalftimeAction({ ulid }: ScoreHalftimeActionProps) {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        Score domicile
-                        <span className="block text-sm text-muted-foreground font-normal">
+                        <span className="block text-xs text-muted-foreground font-normal">
                           {halftimeData.teams.home.clubName}
                         </span>
                       </FormLabel>
@@ -184,8 +184,7 @@ export function ScoreHalftimeAction({ ulid }: ScoreHalftimeActionProps) {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        Score visiteur
-                        <span className="block text-sm text-muted-foreground font-normal">
+                        <span className="block text-xs text-muted-foreground font-normal">
                           {halftimeData.teams.away.clubName}
                         </span>
                       </FormLabel>
@@ -218,7 +217,9 @@ export function ScoreHalftimeAction({ ulid }: ScoreHalftimeActionProps) {
                         {halftimeData.existingScore.homeScore}
                       </div>
                     </div>
-                    <div className="text-lg font-bold text-muted-foreground">-</div>
+                    <div className="text-lg font-bold text-muted-foreground">
+                      -
+                    </div>
                     <div className="text-center">
                       <div className="font-semibold">
                         {halftimeData.teams.away.clubName}
@@ -244,8 +245,8 @@ export function ScoreHalftimeAction({ ulid }: ScoreHalftimeActionProps) {
                   {isSubmitting
                     ? "Enregistrement..."
                     : halftimeData.existingScore
-                    ? "Modifier le score"
-                    : "Enregistrer le score"}
+                      ? "Modifier le score"
+                      : "Enregistrer le score"}
                 </Button>
               </DialogFooter>
             </form>

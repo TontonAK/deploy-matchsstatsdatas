@@ -1,16 +1,20 @@
 "use server";
 
-import { actionUser } from "@/lib/safe-action-client";
-import { SafeActionError } from "@/lib/errors";
 import { updateMatchFinalScore } from "@/database/matchs/update-match";
-import { prisma } from "@/lib/prisma";
 import { MatchResult } from "@/generated/prisma";
+import { SafeActionError } from "@/lib/errors";
+import { prisma } from "@/lib/prisma";
+import { actionUser } from "@/lib/safe-action-client";
 import { z } from "zod";
 
 const scoreFulltimeSchema = z.object({
   matchId: z.number().positive("L'ID du match est requis"),
-  homeScore: z.number().min(0, "Le score de l'équipe à domicile doit être positif ou nul"),
-  awayScore: z.number().min(0, "Le score de l'équipe à l'extérieur doit être positif ou nul"),
+  homeScore: z
+    .number()
+    .min(0, "Le score de l'équipe à domicile doit être positif ou nul"),
+  awayScore: z
+    .number()
+    .min(0, "Le score de l'équipe à l'extérieur doit être positif ou nul"),
   result: z.nativeEnum(MatchResult, {
     errorMap: () => ({ message: "Le résultat du match est requis" }),
   }),
@@ -20,8 +24,10 @@ export const scoreFulltimeAction = actionUser
   .inputSchema(scoreFulltimeSchema)
   .action(async ({ parsedInput: input, ctx: { user } }) => {
     // Vérifier les permissions : Admin ou Coach
-    if (user.job !== "Admin" && user.job !== "Coach") {
-      throw new SafeActionError("Seuls les administrateurs et entraîneurs peuvent modifier le score final");
+    if (user.role !== "admin") {
+      throw new SafeActionError(
+        "Seuls les administrateurs et entraîneurs peuvent modifier le score final"
+      );
     }
 
     // Récupérer les détails du match
@@ -82,13 +88,17 @@ export const scoreFulltimeAction = actionUser
         },
       });
 
-      const userClubIds = userTeams.map(team => team.team.clubId);
+      const userClubIds = userTeams.map((team) => team.team.clubId);
       const matchClubIds = [match.homeTeam.clubId, match.awayTeam.clubId];
 
-      const hasAccess = userClubIds.some(clubId => matchClubIds.includes(clubId));
+      const hasAccess = userClubIds.some((clubId) =>
+        matchClubIds.includes(clubId)
+      );
 
       if (!hasAccess) {
-        throw new SafeActionError("Vous n'avez pas l'autorisation de modifier le score final pour ce match");
+        throw new SafeActionError(
+          "Vous n'avez pas l'autorisation de modifier le score final pour ce match"
+        );
       }
     }
 
@@ -126,10 +136,13 @@ export const scoreFulltimeAction = actionUser
       });
 
       if (!updateResult.success) {
-        throw new SafeActionError(updateResult.error || "Erreur lors de l'enregistrement du score final");
+        throw new SafeActionError(
+          updateResult.error || "Erreur lors de l'enregistrement du score final"
+        );
       }
 
-      const hasExistingScore = match.scoreHomeTeam !== null && match.scoreAwayTeam !== null;
+      const hasExistingScore =
+        match.scoreHomeTeam !== null && match.scoreAwayTeam !== null;
 
       return {
         success: true,
@@ -160,6 +173,8 @@ export const scoreFulltimeAction = actionUser
       if (error instanceof SafeActionError) {
         throw error;
       }
-      throw new SafeActionError("Erreur lors de l'enregistrement du score final");
+      throw new SafeActionError(
+        "Erreur lors de l'enregistrement du score final"
+      );
     }
   });
