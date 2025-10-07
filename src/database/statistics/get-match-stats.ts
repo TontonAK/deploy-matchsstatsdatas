@@ -1,10 +1,11 @@
-import { StatValueType } from "@/generated/prisma";
+import { StatTypeGamePhase, StatValueType } from "@/generated/prisma";
 import { prisma } from "@/lib/prisma";
 
 export interface MatchStatsSummary {
   statTypeId: number;
   statTypeName: string;
   statTypeValue: StatValueType;
+  gamePhase: StatTypeGamePhase | null;
   homeTeamValue: number;
   awayTeamValue: number;
 }
@@ -36,9 +37,23 @@ export const getMatchStats = async (
       include: {
         statType: true,
       },
-      orderBy: {
-        statTypeId: "asc",
-      },
+      orderBy: [
+        {
+          statType: {
+            gamePhase: "asc",
+          },
+        },
+        {
+          statType: {
+            valueType: "asc",
+          },
+        },
+        {
+          statType: {
+            id: "asc",
+          },
+        },
+      ],
     });
 
     // Pour chaque type de statistique, calculer les valeurs totales par équipe
@@ -57,6 +72,7 @@ export const getMatchStats = async (
           statTypeId: matchStatType.statTypeId,
           statTypeName: matchStatType.statType.name,
           statTypeValue: matchStatType.statType.valueType,
+          gamePhase: matchStatType.statType.gamePhase,
           homeTeamValue: 0,
           awayTeamValue: 0,
         };
@@ -90,6 +106,7 @@ export const getMatchStats = async (
         statTypeId: matchStatType.statTypeId,
         statTypeName: matchStatType.statType.name,
         statTypeValue: matchStatType.statType.valueType,
+        gamePhase: matchStatType.statType.gamePhase,
         homeTeamValue: homeTeamStats._sum.value || 0,
         awayTeamValue: awayTeamStats._sum.value || 0,
       };

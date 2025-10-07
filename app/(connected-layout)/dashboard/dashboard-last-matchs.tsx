@@ -5,6 +5,7 @@ import { MatchResult } from "@/generated/prisma";
 import { getRequiredUser } from "@/lib/auth-session";
 import { format } from "date-fns";
 import Image from "next/image";
+import Link from "next/link";
 import { Suspense } from "react";
 
 const getResultDisplay = (result: MatchResult | null, isHomeTeam: boolean) => {
@@ -61,9 +62,11 @@ export const DashboardLastMatchs = async () => {
                         className="object-cover"
                       />
                     )}
-                    <span className="font-medium text-gray-800">
-                      {opponentTeam.club.name}
-                    </span>
+                    <Link href={`/matchs/${match.ulid}`}>
+                      <span className="font-medium text-gray-800">
+                        {opponentTeam.club.name}
+                      </span>
+                    </Link>
                   </div>
 
                   <span

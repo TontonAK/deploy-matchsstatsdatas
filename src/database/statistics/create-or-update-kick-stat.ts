@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { GroundArea } from "@/generated/prisma";
+import { updateKickSuccessRateForTeam } from "./create-or-update-percentage-success-stats";
 
 export interface CreateKickStatParams {
   statId: number;
@@ -31,6 +32,30 @@ export const createKickStat = async (params: CreateKickStatParams) => {
         },
       },
     });
+
+    // Vérifier si c'est une stat de tentative (drops, pénalités, transformations)
+    const statTypeName = kickStat.stat.statType.name;
+    const isAttemptStat = [
+      "Drops tentés",
+      "Pénalités tentées",
+      "Transformations tentées",
+    ].includes(statTypeName);
+
+    // Mettre à jour le pourcentage de réussite au pied si c'est une tentative
+    if (isAttemptStat) {
+      const updateResult = await updateKickSuccessRateForTeam(
+        kickStat.stat.matchId,
+        kickStat.stat.teamId
+      );
+
+      if (!updateResult.success) {
+        console.warn(
+          "Failed to update kick success rate:",
+          updateResult.error
+        );
+        // On continue quand même, ce n'est pas une erreur critique
+      }
+    }
 
     return {
       success: true,

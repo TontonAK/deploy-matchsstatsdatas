@@ -47,9 +47,10 @@ export function AdminCoachActions({
           // Rafraîchir la page pour mettre à jour l'état
           window.location.reload();
         } else {
-          const errorMessage = typeof result?.serverError === 'string'
-            ? result.serverError
-            : "Erreur lors de la validation";
+          const errorMessage =
+            typeof result?.serverError === "string"
+              ? result.serverError
+              : "Erreur lors de la validation";
           toast.error(errorMessage);
         }
       } catch {
@@ -102,16 +103,24 @@ export function AdminCoachActions({
         {matchStatus === "Finish" &&
           matchEndingStatus === "Stat_Not_Sending" &&
           isAdmin && (
-            <Button
-              onClick={handleValidateStats}
-              disabled={isPending || isValidating}
-              variant="default"
-              className="h-12"
-            >
-              {isValidating
-                ? "Validation en cours..."
-                : "Valider les statistiques"}
-            </Button>
+            <>
+              <Button
+                onClick={handleValidateStats}
+                disabled={isPending || isValidating}
+                variant="default"
+                className="h-12"
+              >
+                {isValidating
+                  ? "Validation en cours..."
+                  : "Valider les statistiques"}
+              </Button>
+
+              <Button asChild className="h-12">
+                <Link href={`/matchs/${ulid}/statistics/opponent`}>
+                  Statistiques adversaire
+                </Link>
+              </Button>
+            </>
           )}
 
         <Button asChild className="h-12">
