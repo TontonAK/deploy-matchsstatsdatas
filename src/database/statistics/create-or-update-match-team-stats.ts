@@ -55,7 +55,7 @@ const teamPercentageCalculations: PercentageCalculation[] = [
       denominator > 0 ? Math.round((numerator / denominator) * 100) : 0,
   },
   {
-    name: "% réussite des mêlées",
+    name: "% réussite en mêlée",
     numeratorStats: ["Mêlées gagnées"],
     denominatorStats: ["Mêlées gagnées", "Mêlées perdues"],
     calculate: (numerator, denominator) =>
