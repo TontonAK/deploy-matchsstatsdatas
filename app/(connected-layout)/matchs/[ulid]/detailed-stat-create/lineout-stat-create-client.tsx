@@ -144,7 +144,7 @@ export function LineoutStatCreateClient({
         toast.error(errorMessage);
       } else if (result?.data) {
         toast.success("Statistique de touche créée avec succès !");
-        router.push(`/matchs/${matchUlid}`);
+        router.replace(`/matchs/${matchUlid}`);
       }
     } catch (error) {
       console.error("Error submitting form:", error);

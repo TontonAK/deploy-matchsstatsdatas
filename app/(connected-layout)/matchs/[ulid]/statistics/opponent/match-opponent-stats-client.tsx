@@ -24,8 +24,13 @@ export function MatchOpponentStatsClient({
   const [isSaving, setIsSaving] = useState(false);
   const router = useRouter();
 
+  // Filtrer les statistiques pour exclure "Jeu au pied" (stats détaillées gérées ailleurs)
+  const filteredStats = opponentStats.stats.filter(
+    (stat) => stat.gamePhase !== StatTypeGamePhase.Foot
+  );
+
   // Grouper les statistiques par gamePhase et ordonner
-  const groupedStats = opponentStats.stats.reduce(
+  const groupedStats = filteredStats.reduce(
     (acc, stat) => {
       const phase = stat.gamePhase || "Autres";
       if (!acc[phase]) {
@@ -37,13 +42,12 @@ export function MatchOpponentStatsClient({
     {} as Record<string, typeof opponentStats.stats>
   );
 
-  // Ordre d'affichage des phases
+  // Ordre d'affichage des phases (sans "Foot" car géré par les stats détaillées)
   const phaseOrder: (string | StatTypeGamePhase)[] = [
     "Score",
     "Attack",
     "Defense",
     "Static_Phase",
-    "Foot",
     "Contact_Area",
     "Discipline",
     "Autres",
@@ -55,7 +59,6 @@ export function MatchOpponentStatsClient({
     Attack: "Attaque",
     Defense: "Défense",
     Static_Phase: "Phases statiques",
-    Foot: "Jeu au pied",
     Contact_Area: "Zones de contact",
     Discipline: "Discipline",
     Autres: "Autres statistiques",
@@ -75,7 +78,7 @@ export function MatchOpponentStatsClient({
     } else {
       // Si on entre en mode édition, initialiser avec les valeurs actuelles
       const initialValues: Record<number, number> = {};
-      opponentStats.stats.forEach((stat) => {
+      filteredStats.forEach((stat) => {
         if (stat.valueType === StatValueType.Number) {
           initialValues[stat.statTypeId] = stat.value;
         }
@@ -92,7 +95,7 @@ export function MatchOpponentStatsClient({
       // Créer la liste des stats à sauvegarder (seulement celles modifiées)
       const statsToUpdate = Object.entries(editedValues)
         .map(([statTypeId, newValue]) => {
-          const originalStat = opponentStats.stats.find(
+          const originalStat = filteredStats.find(
             (s) => s.statTypeId === parseInt(statTypeId)
           );
           if (originalStat && originalStat.value !== newValue) {
@@ -210,7 +213,7 @@ export function MatchOpponentStatsClient({
       })}
 
       {/* Message si aucune statistique */}
-      {opponentStats.stats.length === 0 && (
+      {filteredStats.length === 0 && (
         <div className="text-center py-8">
           <p className="text-muted-foreground">
             Aucune statistique disponible pour cette équipe dans ce match.

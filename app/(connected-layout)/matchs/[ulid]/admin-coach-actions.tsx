@@ -116,6 +116,12 @@ export function AdminCoachActions({
               </Button>
 
               <Button asChild className="h-12">
+                <Link href={`/matchs/${ulid}/statistics/team`}>
+                  Statistiques Plaisir
+                </Link>
+              </Button>
+
+              <Button asChild className="h-12">
                 <Link href={`/matchs/${ulid}/statistics/opponent`}>
                   Statistiques adversaire
                 </Link>

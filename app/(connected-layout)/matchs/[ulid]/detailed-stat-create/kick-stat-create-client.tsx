@@ -77,12 +77,16 @@ export function KickStatCreateClient({
 
   const watchedTeamId = watch("teamId");
   const watchedStatTypeId = watch("statTypeId");
-  
+
   // États pour gérer les types de statistiques
-  const [statTypes, setStatTypes] = useState<{id: number; name: string}[]>([]);
-  
+  const [statTypes, setStatTypes] = useState<{ id: number; name: string }[]>(
+    []
+  );
+
   // Trouver le nom du StatType sélectionné
-  const selectedStatTypeName = statTypes.find(st => st.id === watchedStatTypeId)?.name;
+  const selectedStatTypeName = statTypes.find(
+    (st) => st.id === watchedStatTypeId
+  )?.name;
 
   // Validation selon l'étape courante
   const validateCurrentStep = async (): Promise<boolean> => {
@@ -139,13 +143,14 @@ export function KickStatCreateClient({
       const result = await createKickStatAction(data);
 
       if (result?.serverError) {
-        const errorMessage = typeof result.serverError === 'string'
-          ? result.serverError
-          : "Erreur lors de la création de la statistique";
+        const errorMessage =
+          typeof result.serverError === "string"
+            ? result.serverError
+            : "Erreur lors de la création de la statistique";
         toast.error(errorMessage);
       } else if (result?.data) {
         toast.success("Statistique de coup de pied créée avec succès !");
-        router.push(`/matchs/${matchUlid}`);
+        router.replace(`/matchs/${matchUlid}`);
       }
     } catch (error) {
       console.error("Error submitting form:", error);
@@ -188,7 +193,9 @@ export function KickStatCreateClient({
           />
         );
       case 3:
-        return <KickStep3ResultForm control={control} showErrors={showErrors} />;
+        return (
+          <KickStep3ResultForm control={control} showErrors={showErrors} />
+        );
       default:
         return null;
     }
@@ -228,7 +235,11 @@ export function KickStatCreateClient({
           <form
             onSubmit={handleSubmit(onSubmit, onSubmitError)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter' && e.target instanceof HTMLElement && e.target.tagName !== 'BUTTON') {
+              if (
+                e.key === "Enter" &&
+                e.target instanceof HTMLElement &&
+                e.target.tagName !== "BUTTON"
+              ) {
                 e.preventDefault();
               }
             }}

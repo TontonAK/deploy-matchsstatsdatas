@@ -78,37 +78,66 @@ export const getMatchStats = async (
         };
       }
 
-      // Calculer la somme des statistiques pour l'équipe domicile
-      const homeTeamStats = await prisma.stat.aggregate({
-        where: {
-          matchId: match.id,
-          teamId: matchDetails.homeTeamId,
-          statTypeId: matchStatType.statTypeId,
-        },
-        _sum: {
-          value: true,
-        },
-      });
+      let homeTeamValue = 0;
+      let awayTeamValue = 0;
 
-      // Calculer la somme des statistiques pour l'équipe visiteur
-      const awayTeamStats = await prisma.stat.aggregate({
-        where: {
-          matchId: match.id,
-          teamId: matchDetails.awayTeamId,
-          statTypeId: matchStatType.statTypeId,
-        },
-        _sum: {
-          value: true,
-        },
-      });
+      // Si c'est un pourcentage, récupérer la valeur de l'équipe (playerId = null)
+      if (matchStatType.statType.valueType === StatValueType.Percentage) {
+        const homeTeamStat = await prisma.stat.findFirst({
+          where: {
+            matchId: match.id,
+            teamId: matchDetails.homeTeamId,
+            playerId: null,
+            statTypeId: matchStatType.statTypeId,
+          },
+        });
+
+        const awayTeamStat = await prisma.stat.findFirst({
+          where: {
+            matchId: match.id,
+            teamId: matchDetails.awayTeamId,
+            playerId: null,
+            statTypeId: matchStatType.statTypeId,
+          },
+        });
+
+        homeTeamValue = homeTeamStat?.value || 0;
+        awayTeamValue = awayTeamStat?.value || 0;
+      } else {
+        // Si c'est un nombre, faire la somme des stats des joueurs
+        const homeTeamStats = await prisma.stat.aggregate({
+          where: {
+            matchId: match.id,
+            teamId: matchDetails.homeTeamId,
+            statTypeId: matchStatType.statTypeId,
+          },
+          _sum: {
+            value: true,
+          },
+        });
+
+        const awayTeamStats = await prisma.stat.aggregate({
+          where: {
+            matchId: match.id,
+            teamId: matchDetails.awayTeamId,
+            statTypeId: matchStatType.statTypeId,
+          },
+          _sum: {
+            value: true,
+          },
+        });
+
+        homeTeamValue = homeTeamStats._sum.value || 0;
+        awayTeamValue = awayTeamStats._sum.value || 0;
+      }
 
       return {
         statTypeId: matchStatType.statTypeId,
         statTypeName: matchStatType.statType.name,
         statTypeValue: matchStatType.statType.valueType,
         gamePhase: matchStatType.statType.gamePhase,
-        homeTeamValue: homeTeamStats._sum.value || 0,
-        awayTeamValue: awayTeamStats._sum.value || 0,
+        homeTeamValue,
+        awayTeamValue,
       };
     });
 

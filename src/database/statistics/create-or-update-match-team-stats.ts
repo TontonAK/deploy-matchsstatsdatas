@@ -2,18 +2,9 @@ import { StatValueType } from "@/generated/prisma";
 import { getUser } from "@/lib/auth-session";
 import { prisma } from "@/lib/prisma";
 
-export interface UpdateMatchPlayerStatParams {
+export interface UpdateMatchTeamStatsParams {
   matchId: number;
   teamId: number;
-  playerId: string;
-  statTypeId: number;
-  newValue: number;
-}
-
-export interface UpdateMatchPlayerStatsParams {
-  matchId: number;
-  teamId: number;
-  playerId: string;
   stats: {
     statTypeId: number;
     newValue: number;
@@ -54,29 +45,28 @@ interface PercentageCalculation {
   calculate: (numerator: number, denominator: number) => number;
 }
 
-// Configuration des calculs de pourcentages
-const percentageCalculations: PercentageCalculation[] = [
+// Configuration des calculs de pourcentages pour les stats d'équipe uniquement
+const teamPercentageCalculations: PercentageCalculation[] = [
   {
-    name: "% réussite des passes",
-    numeratorStats: ["Passes réussies"],
-    denominatorStats: ["Passes tentées"],
+    name: "% réussite dans les rucks",
+    numeratorStats: ["Rucks gagnés"],
+    denominatorStats: ["Rucks gagnés", "Rucks perdus"],
     calculate: (numerator, denominator) =>
       denominator > 0 ? Math.round((numerator / denominator) * 100) : 0,
   },
   {
-    name: "% efficacité des plaquages",
-    numeratorStats: ["Plaquages réussis"],
-    denominatorStats: ["Plaquages tentés"],
+    name: "% réussite des mêlées",
+    numeratorStats: ["Mêlées gagnées"],
+    denominatorStats: ["Mêlées gagnées", "Mêlées perdues"],
     calculate: (numerator, denominator) =>
       denominator > 0 ? Math.round((numerator / denominator) * 100) : 0,
   },
 ];
 
-// Fonction pour calculer les pourcentages d'un joueur
-const calculatePercentageStats = async (
+// Fonction pour calculer les pourcentages automatiquement pour les stats d'équipe
+const calculateTeamPercentageStats = async (
   matchId: number,
-  teamId: number,
-  playerId: string
+  teamId: number
 ) => {
   try {
     // Récupérer tous les types de stats pour calculer les pourcentages
@@ -84,10 +74,16 @@ const calculatePercentageStats = async (
       select: { id: true, name: true, valueType: true },
     });
 
-    // Récupérer toutes les stats actuelles du joueur pour ce match
+    // Récupérer toutes les stats actuelles de l'équipe pour ce match
     const currentStats = await prisma.stat.findMany({
-      where: { matchId, teamId, playerId },
-      include: { statType: true },
+      where: {
+        matchId,
+        teamId,
+        playerId: null,
+      },
+      include: {
+        statType: true,
+      },
     });
 
     // Créer un map pour faciliter la récupération des valeurs
@@ -99,72 +95,13 @@ const calculatePercentageStats = async (
     const percentageUpdates = [];
 
     // Calculer chaque pourcentage selon la configuration
-    for (const config of percentageCalculations) {
+    for (const config of teamPercentageCalculations) {
       const numerator = config.numeratorStats.reduce(
         (sum, statName) => sum + (statsMap.get(statName) || 0),
         0
       );
       const denominator = config.denominatorStats.reduce(
         (sum, statName) => sum + (statsMap.get(statName) || 0),
-        0
-      );
-      const percentage = config.calculate(numerator, denominator);
-
-      const percentageType = allStatTypes.find((st) => st.name === config.name);
-      if (percentageType) {
-        await upsertStat(matchId, teamId, playerId, percentageType.id, percentage);
-        percentageUpdates.push({
-          statTypeId: percentageType.id,
-          newValue: percentage,
-        });
-      }
-    }
-
-    return percentageUpdates;
-  } catch (error) {
-    console.error("Error calculating percentage stats:", error);
-    return [];
-  }
-};
-
-// Fonction pour calculer les pourcentages globaux de l'équipe
-const calculateTeamPercentageStats = async (
-  matchId: number,
-  teamId: number
-) => {
-  try {
-    // Récupérer tous les types de stats
-    const allStatTypes = await prisma.statType.findMany({
-      select: { id: true, name: true, valueType: true },
-    });
-
-    // Récupérer toutes les stats des joueurs pour ce match et cette équipe
-    const playerStats = await prisma.stat.findMany({
-      where: {
-        matchId,
-        teamId,
-        playerId: { not: null }, // Uniquement les stats des joueurs
-      },
-      include: { statType: true },
-    });
-
-    // Créer un map pour calculer les totaux
-    const totalsMap = new Map<string, number>();
-    playerStats.forEach((stat) => {
-      const currentTotal = totalsMap.get(stat.statType.name) || 0;
-      totalsMap.set(stat.statType.name, currentTotal + stat.value);
-    });
-
-    const percentageUpdates = [];
-
-    // Calculer chaque pourcentage selon la configuration
-    for (const config of percentageCalculations) {
-      const numerator = config.numeratorStats.reduce(
-        (sum, statName) => sum + (totalsMap.get(statName) || 0),
-        0
-      );
-      const denominator = config.denominatorStats.reduce(
-        (sum, statName) => sum + (totalsMap.get(statName) || 0),
         0
       );
       const percentage = config.calculate(numerator, denominator);
@@ -186,8 +123,8 @@ const calculateTeamPercentageStats = async (
   }
 };
 
-export const createOrUpdateMatchPlayerStats = async (
-  params: UpdateMatchPlayerStatsParams
+export const createOrUpdateMatchTeamStats = async (
+  params: UpdateMatchTeamStatsParams
 ) => {
   try {
     // Vérifier l'utilisateur connecté et ses permissions
@@ -207,6 +144,8 @@ export const createOrUpdateMatchPlayerStats = async (
         id: true,
         status: true,
         endingStatus: true,
+        homeTeamId: true,
+        awayTeamId: true,
       },
     });
 
@@ -222,19 +161,27 @@ export const createOrUpdateMatchPlayerStats = async (
       };
     }
 
-    // Vérifier que le joueur fait partie de la lineup
-    const lineup = await prisma.matchLineup.findFirst({
-      where: {
-        matchId: params.matchId,
-        playerId: params.playerId,
-        teamId: params.teamId,
-      },
-    });
-
-    if (!lineup) {
+    // Vérifier que l'équipe fait partie du match
+    if (
+      match.homeTeamId !== params.teamId &&
+      match.awayTeamId !== params.teamId
+    ) {
       return {
         success: false,
-        error: "Le joueur ne fait pas partie de la composition pour ce match.",
+        error: "L'équipe ne fait pas partie de ce match.",
+      };
+    }
+
+    // Vérifier que l'équipe appartient au club de l'utilisateur
+    const team = await prisma.team.findUnique({
+      where: { id: params.teamId },
+      select: { clubId: true },
+    });
+
+    if (!team || team.clubId !== currentUser.clubId) {
+      return {
+        success: false,
+        error: "Vous ne pouvez modifier que les statistiques de votre équipe.",
       };
     }
 
@@ -263,7 +210,7 @@ export const createOrUpdateMatchPlayerStats = async (
         where: {
           matchId: params.matchId,
           teamId: params.teamId,
-          playerId: params.playerId,
+          playerId: null,
           statTypeId: stat.statTypeId,
         },
       });
@@ -291,7 +238,7 @@ export const createOrUpdateMatchPlayerStats = async (
             data: {
               matchId: params.matchId,
               teamId: params.teamId,
-              playerId: params.playerId,
+              playerId: null,
               statTypeId: stat.statTypeId,
               value: stat.newValue,
             },
@@ -310,15 +257,8 @@ export const createOrUpdateMatchPlayerStats = async (
       }
     }
 
-    // Calculer et mettre à jour les pourcentages du joueur
-    const percentageUpdates = await calculatePercentageStats(
-      params.matchId,
-      params.teamId,
-      params.playerId
-    );
-
-    // Calculer et mettre à jour les pourcentages globaux de l'équipe
-    const teamPercentageUpdates = await calculateTeamPercentageStats(
+    // Calculer et mettre à jour les pourcentages automatiquement
+    const percentageUpdates = await calculateTeamPercentageStats(
       params.matchId,
       params.teamId
     );
@@ -328,11 +268,10 @@ export const createOrUpdateMatchPlayerStats = async (
       stats: results,
       updatedStats,
       percentageUpdates,
-      teamPercentageUpdates,
-      message: `${updatedStats.length} statistique(s) mise(s) à jour, ${percentageUpdates.length} pourcentage(s) joueur recalculé(s) et ${teamPercentageUpdates.length} pourcentage(s) équipe recalculé(s).`,
+      message: `${updatedStats.length} statistique(s) mise(s) à jour et ${percentageUpdates.length} pourcentage(s) recalculé(s).`,
     };
   } catch (error) {
-    console.error("Error creating/updating match player stats:", error);
+    console.error("Error creating/updating match team stats:", error);
     return {
       success: false,
       error: "Erreur lors de la mise à jour des statistiques.",

@@ -3,68 +3,50 @@
 import { StatCardEditable } from "@/components/stats/stat-card-editable";
 import { Button } from "@/components/ui/button";
 import { StatValueType, StatTypeGamePhase } from "@/generated/prisma";
-import { MatchPlayerStatsResult } from "@/database/statistics/get-match-player-stats";
-import { updateMatchPlayerStatsAction } from "./update-stats.action";
+import { MatchTeamStatsResult } from "@/database/statistics/get-match-team-stats";
+import { updateMatchTeamStatsAction } from "./update-team-stats.action";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-interface MatchPlayerStatsClientProps {
-  playerStats: MatchPlayerStatsResult;
+interface MatchTeamStatsClientProps {
+  teamStats: MatchTeamStatsResult;
   canEdit: boolean;
   matchId: number;
   teamId: number;
-  playerId: string;
 }
 
-export function MatchPlayerStatsClient({
-  playerStats,
+export function MatchTeamStatsClient({
+  teamStats,
   canEdit,
   matchId,
   teamId,
-  playerId,
-}: MatchPlayerStatsClientProps) {
+}: MatchTeamStatsClientProps) {
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedValues, setEditedValues] = useState<Record<number, number>>({});
   const [isSaving, setIsSaving] = useState(false);
   const router = useRouter();
 
-  // Filtrer les statistiques pour exclure "Jeu au pied" (stats détaillées gérées ailleurs)
-  const filteredStats = playerStats.stats.filter(
-    (stat) => stat.gamePhase !== StatTypeGamePhase.Foot
-  );
-
   // Grouper les statistiques par gamePhase et ordonner
-  const groupedStats = filteredStats.reduce((acc, stat) => {
+  const groupedStats = teamStats.stats.reduce((acc, stat) => {
     const phase = stat.gamePhase || "Autres";
     if (!acc[phase]) {
       acc[phase] = [];
     }
     acc[phase].push(stat);
     return acc;
-  }, {} as Record<string, typeof playerStats.stats>);
+  }, {} as Record<string, typeof teamStats.stats>);
 
-  // Ordre d'affichage des phases (sans "Foot" car géré par les stats détaillées)
+  // Ordre d'affichage des phases
   const phaseOrder: (string | StatTypeGamePhase)[] = [
     "Score",
     "Attack",
     "Defense",
     "Static_Phase",
+    "Foot",
     "Contact_Area",
     "Discipline",
     "Autres",
   ];
-
-  // Traitement spécial pour "Temps de jeu" - le placer en dernier
-  const tempsDeJeuStat = filteredStats.find(
-    (stat) => stat.statTypeName === "Temps de jeu"
-  );
-
-  // Filtrer "Temps de jeu" des groupes normaux
-  Object.keys(groupedStats).forEach((phase) => {
-    groupedStats[phase] = groupedStats[phase].filter(
-      (stat) => stat.statTypeName !== "Temps de jeu"
-    );
-  });
 
   // Traduire les noms des phases pour l'affichage
   const phaseTranslations: Record<string, string> = {
@@ -72,6 +54,7 @@ export function MatchPlayerStatsClient({
     Attack: "Attaque",
     Defense: "Défense",
     Static_Phase: "Phases statiques",
+    Foot: "Jeu au pied",
     Contact_Area: "Zones de contact",
     Discipline: "Discipline",
     Autres: "Autres statistiques",
@@ -91,7 +74,7 @@ export function MatchPlayerStatsClient({
     } else {
       // Si on entre en mode édition, initialiser avec les valeurs actuelles
       const initialValues: Record<number, number> = {};
-      filteredStats.forEach((stat) => {
+      teamStats.stats.forEach((stat) => {
         if (stat.valueType === StatValueType.Number) {
           initialValues[stat.statTypeId] = stat.value;
         }
@@ -108,7 +91,7 @@ export function MatchPlayerStatsClient({
       // Créer la liste des stats à sauvegarder (seulement celles modifiées)
       const statsToUpdate = Object.entries(editedValues)
         .map(([statTypeId, newValue]) => {
-          const originalStat = filteredStats.find(
+          const originalStat = teamStats.stats.find(
             (s) => s.statTypeId === parseInt(statTypeId)
           );
           if (originalStat && originalStat.value !== newValue) {
@@ -129,10 +112,9 @@ export function MatchPlayerStatsClient({
       }
 
       // Appeler l'action de mise à jour
-      const result = await updateMatchPlayerStatsAction({
+      const result = await updateMatchTeamStatsAction({
         matchId,
         teamId,
-        playerId,
         stats: statsToUpdate,
       });
 
@@ -161,7 +143,7 @@ export function MatchPlayerStatsClient({
     }
   };
 
-  const getDisplayValue = (stat: (typeof playerStats.stats)[0]) => {
+  const getDisplayValue = (stat: (typeof teamStats.stats)[0]) => {
     if (
       isEditMode &&
       stat.valueType === StatValueType.Number &&
@@ -178,7 +160,7 @@ export function MatchPlayerStatsClient({
     <div className="space-y-8">
       {/* Bouton Modifier/Sauvegarder */}
       {canEdit && (
-        <div className="flex justify-start">
+        <div className="flex justify-start gap-4">
           <Button
             onClick={isEditMode ? handleSave : handleEditToggle}
             disabled={isSaving}
@@ -191,13 +173,23 @@ export function MatchPlayerStatsClient({
               ? "Sauvegarder stats"
               : "Modifier stats"}
           </Button>
+          {isEditMode && (
+            <Button
+              onClick={handleEditToggle}
+              disabled={isSaving}
+              variant="outline"
+              size="lg"
+            >
+              Annuler
+            </Button>
+          )}
         </div>
       )}
 
-      {/* Informations du joueur */}
+      {/* Informations de l'équipe */}
       <div className="mb-6">
         <h2 className="text-xl font-semibold mb-2">
-          Statistiques de {playerStats.playerName}
+          Statistiques de {teamStats.teamName}
         </h2>
       </div>
 
@@ -228,29 +220,11 @@ export function MatchPlayerStatsClient({
         );
       })}
 
-      {/* Temps de jeu affiché en dernier */}
-      {tempsDeJeuStat && (
-        <div>
-          <h3 className="text-lg font-semibold mb-4">Temps de jeu</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            <StatCardEditable
-              title={tempsDeJeuStat.statTypeName}
-              value={getDisplayValue(tempsDeJeuStat)}
-              subtitle="minutes"
-              isEditable={isEditMode}
-              valueType={tempsDeJeuStat.valueType}
-              statTypeId={tempsDeJeuStat.statTypeId}
-              onValueChange={handleValueChange}
-            />
-          </div>
-        </div>
-      )}
-
       {/* Message si aucune statistique */}
-      {filteredStats.length === 0 && (
+      {teamStats.stats.length === 0 && (
         <div className="text-center py-8">
           <p className="text-muted-foreground">
-            Aucune statistique disponible pour ce joueur dans ce match.
+            Aucune statistique disponible pour cette équipe dans ce match.
           </p>
         </div>
       )}

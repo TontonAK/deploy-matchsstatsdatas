@@ -177,7 +177,7 @@ export const getLastFiveMatchs = async (teamId: number | undefined) => {
       ],
     },
     orderBy: {
-      schedule: "asc",
+      schedule: "desc",
     },
     select: SELECT_QUERY,
   });
